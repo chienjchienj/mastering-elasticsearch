@@ -65,22 +65,22 @@ curl -XGET 'localhost:9200/clients/_search?pretty' -d '{
 "_index" : "clients",<br/>
 "_type" : "client",<br/>
 "_id" : "5",<br/>
-"_score" : 1.0, "_source" : {"id":"5","name":"Jannet"}</blockquote>
+"\_score" : 1.0, "_source" : {"id":"5","name":"Jannet"}</blockquote>
 }, {<blockquote>
 "_index" : "clients",<br/>
 "_type" : "client",<br/>
 "_id" : "1",<br/>
-"_score" : 1.0, "_source" : {"id":"1", "name":"Joe"}</blockquote>
+"\_score" : 1.0, "_source" : {"id":"1", "name":"Joe"}</blockquote>
 }, {<blockquote>
 "_index" : "clients",<br/>
 "_type" : "client",<br/>
 "_id" : "2",<br/>
-"_score" : 1.0, "_source" : {"id":"2", "name":"Jane"}</blockquote>
+"\_score" : 1.0, "_source" : {"id":"2", "name":"Jane"}</blockquote>
 }, {<blockquote>
 "_index" : "clients",<br/>
 "_type" : "client",<br/>
 "_id" : "3",<br/>
-"_score" : 1.0, "_source" : {"id":"3", "name":"Jack"}</blockquote>
+"\_score" : 1.0, "_source" : {"id":"3", "name":"Jack"}</blockquote>
 } ]</blockquote>
 }
 }</blockquote>
