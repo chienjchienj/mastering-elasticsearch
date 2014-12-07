@@ -46,7 +46,7 @@
 	<img src="../note.png" style="position:absolute; top:30%; "/>
 </div>
 <div style="float:left; width:550px;height:100%;">
-	<p style="font-size:13px;"><br/>如果想了解段由哪些文件组成，想了解每个文件中存储了什么信息，可以参考Apache Lucene documentation ,访问地址：http://lucene.apache.org/core/4_5_0/core/org/apache/lucene/codecs/lucene45/package-summary.html.</p>
+	<p style="font-size:13px;margin-top:5px;">如果想了解段由哪些文件组成，想了解每个文件中存储了什么信息，可以参考Apache Lucene documentation ,访问地址：http://lucene.apache.org/core/4_5_0/core/org/apache/lucene/codecs/lucene45/package-summary.html.</p>
 </div>
 <div style="float:left;width:13px;height:100%;background:black;">
   <img src="../rm.png" height="100px" width="13px" style="margin-top:5px;"/>

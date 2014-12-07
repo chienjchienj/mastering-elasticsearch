@@ -74,7 +74,27 @@ curl -XPOST localhost:9200/_bulk?pretty --data-binary @documents.json
 <li>rescore\_query\_weight(默认值为1):rescore的打分会先乘以该值，然后再与原查询的得分相加。</li>
 <li>rescore_mode(默认值是tatal):该参数在ElasticSearch 0.90.3版本中引入(在ElasticSearch 0.90.3版本前，该参数类似的功能模块设置值为tatal),它用来指定重打分文档的打分方式。可选值为total,max,min,avg和multiply。当设置该值为total时文档最终得分为原查询得分和rescore得分的和；当设置该值为max时，文档最终得分为原查询得分和rescore得分的最大值；与max类似，当设置该值为min时，文档最终得分为原查询得分和rescore得分的最小值。以此类推，当选择avg时，文档的最终得分为原查询得分和rescore得分的平均值，如果设置为multiply,两种查询的得分将会相乘。</li>
 </ul>
-
+例如，设置rescore\_mode参数值为total，文档的最终得分是：
+<blockquote>original\_query\_score * query\_weight + rescore\_query\_score *
+ rescore\_query\_weight</blockquote>
 </p>
+<!--note structure -->
+<div style="height:110px;width:650px;text-indent:0em;">
+<div style="float:left;width:13px;height:100%; background:black;">
+  <img src="../lm.png" height="100px" width="13px" style="margin-top:5px;"/>
+</div>
+<div style="float:left;width:50px;height:100%;position:relative;">
+	<img src="../note.png" style="position:absolute; top:30%; "/>
+</div>
+<div style="float:left; width:550px;height:100%;">
+	<p style="font-size:13px;margin-top:5px;">请记住ElasticSearch 0.90.3之前的版本不支持rescore\_mode参数，在ElasticSearch 0.90.3 版本之前，rescore机制实际上就是参数值只能为total。 </p>
+</div>
+<div style="float:left;width:13px;height:100%;background:black;">
+  <img src="../rm.png" height="100px" width="13px" style="margin-top:5px;"/>
+</div>
+</div> <!-- end of note structure -->
+
+<h4>本节小结</h4>
+<p>有时，我们可能需要根据一些规则对页面中前几个文档进行排序。但是不幸的是，rescore机制并不能满足这一需求。也许第一个想到的是设置window\_size参数，但是该参数实际上关联的并不是结果集中的前几个文档，而是每个分片上的前几个文档。此外，window\_size参数值不能小于页面大小。(如果小于页面大小，则ElasticSearch会自动使用页面大小取代原来的window_size值)。而且非常重要的一点是重排序不能与排序结合使用，因为排序必须在重排序改变文档得分之前完成，而且文档排序并不会将新计算的得分考虑到内。上面提到的参数限制以及几种不同重排序功能的缺失(比如，对前3个文档使用一种规则进行排序，对随后的5个文档用另一种规则进行排序)限制了rescore功能的应用场景，在使用rescore功能前需要记住这一点。 </p>
 
 </div>
