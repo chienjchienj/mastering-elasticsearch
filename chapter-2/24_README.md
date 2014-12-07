@@ -7,7 +7,7 @@
 <blockquote>curl localhost:9200/library/book/_mget?fields=title -d '{
  "ids" : [1,3]
 }'</blockquote>
-该命令获取了URL中限定索引和索引类型中ids参数指定的两个文档。在前面的样例中，我们也设置了文档需要返回哪些域(使用fields 请求参数)。ElasticSearch将返回如下格式的文档集:
+该命令获取了URL中限定索引和type中ids参数指定的两个文档。在前面的样例中，我们也设置了文档需要返回哪些域(使用fields 请求参数)。ElasticSearch将返回如下格式的文档集:
 <blockquote>{
  "docs" : [ {
  "_index" : "library",
@@ -34,6 +34,95 @@
  "docs" : [{ "\_id" : 1}, { "\_id" : 3}]
 }'</blockquote>
 </p>
+<p>下面的格式在从多个索引和type中获取文档或者不同的文档需要返回不同的域时会很方便。在本例中，URL地址中包含的信息会被当作默认值看待。例如，参考如下的查询命令：
+<blockquote>curl localhost:9200/library/book/_mget?fields=title -d '{
+ "docs" : [
+ { "\_index": "library\_backup", "\_id" : 1, "fields": ["otitle"]},
+ { "\_id" : 3}
+ ]
+}'</blockquote>
+该命令会返回两个id值为1和3的文档，但是第一个文档从library_backup索引中返回，第二个文档从library索引中返回(因为library索引是定义在URL中，当作默认值看待的)。此外，在第一个文档中，我们限定只返回域名为otitle的文档。
+</p>
+<!--note structure -->
+<div style="height:110px;width:650px;text-indent:0em;">
+<div style="float:left;width:13px;height:100%; background:black;">
+  <img src="../lm.png" height="100px" width="13px" style="margin-top:5px;"/>
+</div>
+<div style="float:left;width:50px;height:100%;position:relative;">
+	<img src="../note.png" style="position:absolute; top:30%; "/>
+</div>
+<div style="float:left; width:550px;height:100%;">
+	<p style="font-size:13px;margin-top:5px;">在ElasticSearch 1.0版本中，MultiGet API会允许用户指定操作的文档版本。如果文档版本与请求命令中的不一致，ElasticSearch将不会执行MultiGet操作。这个新增的参数是version，允许用户传递感兴趣的参数；第二个参数是version_type，支持两种选项：internal和external。 </p>
+</div>
+<div style="float:left;width:13px;height:100%;background:black;">
+  <img src="../rm.png" height="100px" width="13px" style="margin-top:5px;"/>
+</div>
+</div> <!-- end of note structure -->
+<h4>MultiSearch</h4>
+<p>与MultiGet类似，MultiSearch功能允许用户将多个查询请求打包。但是，这种打包会稍微有点不同，看起来与批量索引的命令格式类似。ElasticSearch会按行来解析输入文本，每两行文本为一组，包含了查询的附带参数的目标索引和一个查询对象。参考如下的样例：
+<blockquote>curl localhost:9200/library/books/_msearch?pretty --data-binary '
+{ "type" : "book" }
+{ "filter" : { "term" : { "year" : 1936} }}
+{ "search_type": "count" }
+{ "query" : { "match_all" : {} }}
+{ "index" : "library-backup", "type" : "book" }
+{ "sort" : ["year"] }
+'</blockquote>
+正如例子所示，用户请求发送到\_msearch端点。路径中的索引和type是可选的，作为奇数行，即查询命令目标索引和type的默认值。例子中的文本可以包含搜索类型(search\_type)和路由或者查询的执行提示信息(preference)。由于这些参数都不是必须的，在有些情况下，一行可以只有有一个空的对象({})或者甚至是一个空行。真正的查询对象的描述由请求命令中的偶数行负责。接下来，看看上面请求命令的执行结果：
+<blockquote>
+{
+ "responses" : [ {
+ "took" : 2,
+ "timed_out" : false,
+ "_shards" : {
+ "total" : 5,
+ "successful" : 5,
+ "failed" : 0
+ },
+ "hits" : {
+ "total" : 1,
+ "max_score" : 1.0,
+ "hits" : [ {
+ ...
+ } ]
+ }
+ },
+ ...
+ {
+ "took" : 2,
+ "timed_out" : false,
+ "_shards" : {
+ "total" : 5,
+ "successful" : 5,
+ "failed" : 0
+ },
+ "hits" : {
+ "total" : 4,
+ "max_score" : null,
+ "hits" : [ {
+ ...
+ } ]
+ }
+ } ]
+}
+</blockquote>
+返回的JSON对象包一个数组，用来存储批量查询中每个查询语句的查询结果。前面已经提到，MultiSearch允许用户将多个独立的查询命令聚集在一起，因此每个查询返回的文档集会根据索引的不同而结构不同。
+</p>
+<!--note structure -->
+<div style="height:110px;width:650px;text-indent:0em;">
+<div style="float:left;width:13px;height:100%; background:black;">
+  <img src="../lm.png" height="100px" width="13px" style="margin-top:5px;"/>
+</div>
+<div style="float:left;width:50px;height:100%;position:relative;">
+	<img src="../note.png" style="position:absolute; top:30%; "/>
+</div>
+<div style="float:left; width:550px;height:100%;">
+	<p style="font-size:13px;margin-top:5px;">注意，就象批量索引一样，批量请求不需要额外的缩进。每行的作用都很清晰：限制信息或者查询对象。因此要确保每行的换行符号存在，并且发送查询命令的工具不会改变命令的内容。这就是为什么在curl命令中，我们需要使用--data-binary替代-d，-d不会保存换行符号。 </p>
+</div>
+<div style="float:left;width:13px;height:100%;background:black;">
+  <img src="../rm.png" height="100px" width="13px" style="margin-top:5px;"/>
+</div>
+</div> <!-- end of note structure -->
 
 </div>
 
