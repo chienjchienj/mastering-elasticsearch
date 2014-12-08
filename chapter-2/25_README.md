@@ -65,7 +65,7 @@ value per doc, or more than one token per field]。实际上，多值域排序�
 "mode" : "min"
 }
 }]
-}<blockquote>
+}</blockquote>
 可以看到上面的例子中，我们只有一个包含多个地理坐标点的文档。接下来基于该文档执行上面的查询命令，返回结果如下：
 <blockquote>
 {
@@ -92,7 +92,55 @@ value per doc, or more than one token per field]。实际上，多值域排序�
 }
 }
 </blockquote>
-可以看到，该查询命令的结果集中sort部分如下："sort" : [ 0.0 ]。这是因为查询命令中的坐标点与文档中的一个坐标点是一样的。如果用户修改mode属性值为max，结果会变得不一样，高亮的部分就会变成："sort" : [ 280.4459406165739 ]
+可以看到，该查询命令的结果集中sort部分如下："sort" : [ 0.0 ]。这是因为查询命令中的坐标点与文档中的一个坐标点是一样的。如果用户修改mode属性值为max，结果会变得不一样，高亮的部分就会变成："sort" : [ 280.4459406165739 ]。
+</p>
+<!--note structure -->
+<div style="height:50px;width:650px;text-indent:0em;">
+<div style="float:left;width:13px;height:100%; background:black;">
+  <img src="../lm.png" height="40px" width="13px" style="margin-top:5px;"/>
+</div>
+<div style="float:left;width:50px;height:100%;position:relative;">
+	<img src="../note.png" style="position:absolute; top:30%; "/>
+</div>
+<div style="float:left; width:550px;height:100%;">
+	<p style="font-size:13px;margin-top:5px;"> ElasticSearch 0.90.1版本引入了在mode属性中使用avg来对地理距离排序的功能。</p>
+</div>
+<div style="float:left;width:13px;height:100%;background:black;">
+  <img src="../rm.png" height="40px" width="13px" style="margin-top:5px;"/>
+</div>
+</div> <!-- end of note structure -->
 
+<h4>内嵌对象的排序</h4>
+<p>ElasticSearch 0.90版本中新引入的关于排序功能的最后知识点就是可以用内嵌对象中的域排序。使用内嵌文档中的域排序有两种方式：在内嵌mappings中明确指定(在mappings中使用type="nested")或者使用type对象，这两者稍微有些不同，需要用户记住。
+假定索引中包含如下的数据：
+<blockquote>{
+ "country": "PL", "cities": { "name": "Cracow", "votes": {
+ "users": "A" }}
+}
+{
+ "country": "EN", "cities": { "name": "York", "votes": [{"users":
+ "B"}, { "users": "C" }]}
+}
+{
+ "country": "FR", "cities": { "name": "Paris", "votes": {
+ "users": "D"} }
+}
+</blockquote>
+可以看到，内嵌对象一层套一层，而且有些文档中还包含多值域(例如：多个votes)。
+接下来关注如下的查询命令：
+<blockqoute>{
+ "sort": [{ "cities.votes.users": { "order": "desc", "mode":
+ "min" }}]
+}</blockquote>
+上面的查询命令会使文档按照users中的最小值升序排序。但是，如果使用object类型的subdocument，可以简化查询命令如下：
+<blockquote>{
+ "sort": [{ "users": { order: "desc", mode: "min" }}]
+}</blockquote>
+之所以可以简化查询是因为使用object类型时，整个object的结构在存储时可以作为一个单独的Lucene文档来存储。如果使用内嵌类型，ElasticSearch需要更精确的域信息，因为这些文档实际上各自是独立的Lucene 文档。有时使用nested_path属性会更方便，比如查询命令写成下面的样子：
+<blockquote>{
+ "sort": [{ "users": { "nested_path": "cities.votes", "order":
+ "desc", "mode": "min" }}]
+}</blockquote>
+请注意，用户还可以使用nested_filter参数，该参数只能用于内嵌文档中(明确标识为内嵌文档)。幸亏有这个参数，才使得用户可以在业务中使用从排序结果中排序文档的过滤器，而非从结果集中过滤文档的过滤器。
 </p>
 </div>
