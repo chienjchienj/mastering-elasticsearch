@@ -31,11 +31,68 @@ value per doc, or more than one token per field]。实际上，多值域排序�
 }</blockquote>
 注意在我们的例子中，query部分是冗余的，基于上是默认值，因此下面的例子中我们会省略这一部分。在本例中，ElasticSearch会选择每个文档中release_dates域中的最小值，然后基于该值对文档排序。mode参数能够设置如下的值：
 <ul>
-<li>min:</li>
-<li>max:</li>
-<li>avg:</li>
-<li>sum:</li>
+<li>min:升序排序的默认值，ElasticSearch选取每个文档中该域中的最小值</li>
+<li>max:降序排序的默认值，ElasticSearch选取每个文档中该域中的最大值</li>
+<li>avg:ElasticSearch选取每个文档中该域中所有值的平均值</li>
+<li>sum:ElasticSearch选取每个文档中该域中所有值的和</li>
 </ul>
+注意，本来最后两个选项只能用于数值域，但是当前版本实现了在文本类型的域中使用该参数。但是最终结果不可预知，不推荐使用。
+</p>
+
+<h4>地理位置相关的多值域搜索</h4>
+<p>ElasticSearch 0.90.0RC2版本引入了一项新的功能，即对包含多个坐标点的域排序。这个特性的工作方式与前面提到的多值域是一样的，当然只是从用户的角度。下面通过一个例子深入了解其功能。假定我们希望搜索到给定城市中距离某个坐标点最近的地方(比如一个城市中有多个车站，我们希望找到离我们位置最近的车站)。假定，数据的mapping中有如下定义：
+<blockquote>
+{
+"mappings": {
+"poi": {
+"properties": {
+"country": { "type": "string" },
+"loc": { "type": "geo_point" }
+}
+}
+}
+}
+</blockquote>
+接下来有一条简单的数据，如下：
+<blockquote>{ "country": "UK", "loc": ["51.511214,-0.119824", "53.479251,
+-2.247926", "53.962301,-1.081884"] }</blockquote>
+我们的查询命令也很简单，如下：
+<blockquote>{
+"sort": [{
+"\_geo\_distance": {
+"loc": "51.511214,-0.119824",
+"unit": "km",
+"mode" : "min"
+}
+}]
+}<blockquote>
+可以看到上面的例子中，我们只有一个包含多个地理坐标点的文档。接下来基于该文档执行上面的查询命令，返回结果如下：
+<blockquote>
+{
+"took" : 21,
+"timed_out" : false,
+"\_shards" : {
+"total" : 5,
+"successful" : 5,
+"failed" : 0
+},
+"hits" : {
+"total" : 1,
+"max\_score" : null,
+"hits" : [ {
+"\_index" : "map",
+"\_type" : "poi",
+"\_id" : "1",
+"\_score" : null, "\_source" : {
+"country": "UK", "loc": ["51.511214,-0.119824",
+"53.479251,-2.247926", "53.962301,-1.081884"] }
+,
+<b>"sort" : [ 0.0 ]</b>
+} ]
+}
+}
+</blockquote>
+可以看到，该查询命令的结果集中sort部分如下："sort" : [ 0.0 ]。这是因为查询命令中的坐标点与文档中的一个坐标点是一样的。如果用户修改mode属性值为max，结果会变得不一样，高亮的部分就会变成："sort" : [ 280.4459406165739 ]
 
 </p>
 </div>
