@@ -4,7 +4,7 @@
 <h4>理解重打分</h4>
 <p>在ElasticSearch中，重打分是一个对限定数目的查询结果进行再次打分的一个过程。这意味着ElasticSearch会根据新的打分规则对查询结果的前N个文档重新进行一次排序。</p>
 <h4>样例数据</h4>
-<<<<<<< HEAD
+
 <p>样例数据存储在documents.json文件中(随书附带)，可以通过如下的命令索引到ElasticSearch中：
 </p>
 

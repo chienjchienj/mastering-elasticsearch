@@ -1,6 +1,5 @@
 ## Lucene查询语言
 <hr>
-<div style="text-indent:2em;">
 <p>ElasticSearch提供的一些查询方式(query types)能够被Lucene的查询解析器(query parser)语法所支持。由于这个原因，我们来深入学习Lucene查询语言，了解其庐山真面目吧。</p>
 
 <h3>基础语法</h3>
@@ -38,11 +37,10 @@
 
 <p>除了可以应用简单的关键词和查询表达式实现标准的域查询，Lucene还支持往查询表达式中传入修饰符使关键词具有变形能力。最常用的修饰符，也是大家都熟知的，就是通配符。Lucene支持?和\*两种通配符。?可以匹配任意单个字符，而\*能够匹配多个字符。
 </p>
-<br/>
 
 
 <!-- note structure -->
-<div style="height:110px;width:90%;position:relative;">
+<div style="height:50px;width:90%;position:relative;">
 <div style="width:13px;height:100%; background:black; position:absolute;padding:5px 0 5px 0;">
 <img src="../notes/lm.png" height="100%" width="13px"/>
 </div>
@@ -50,15 +48,16 @@
 <img src="../notes/pixel.gif" style="height:100%; width:1px; vertical-align:middle;"/>
 <img src="../notes/note.png" style="vertical-align:middle;"/>
 </div>
-<div id="mid" style="height:100%;position:absolute;left:65px;right:13px;">
-<p style="font-size:13px;margin-top:10px;">请注意出于性能考虑，默认的通配符不能是关键词的首字母。
+<div style="height:100%;position:absolute;left:65px;right:13px;">
+<p style="font-size:13px;margin-top:10px;">
+请注意出于性能考虑，默认的通配符不能是关键词的首字母。
 </p>
 </div>
-<div id="right" style="width:13px;height:100%;background:black;position:absolute;right:0px;padding:5px 0 5px 0;">
+<div style="width:13px;height:100%;background:black;position:absolute;right:0px;padding:5px 0 5px 0;">
 <img src="../notes/rm.png" height="100%" width="13px"/>
 </div>
 </div>  <!-- end of note structure -->
-<br/>
+
 <p>此外，Lucene支持模糊查询(fuzzy query)和邻近查询(proximity query)。语法规则是查询表达式后面接一个~符号，后面紧跟一个整数。如果查询表达式是单独一个Term，这表示我们的搜索关键词可以由Term变形(替换一个字符，添加一个字符，删除一个字符)而来，即与Term是相似的。这种搜索方式称为模糊搜索(fuzzy search)。在~符号后面的整数表示最大编辑距离。例如：执行查询表达式 "writer~2"能够搜索到含writer和writers的文档。</p>
 <p>当~符号用于一个短语时，~后面的整数表示短语中可接收的最大的词编辑距离(短语中替换一个词，添加一个词，删除一个词)。举个例子,查询表达式title:"mastering elasticsearch"只能匹配title域中含"mastering elasticsearch"的文档，而无法匹配含"mastering book elasticsearch"的文档。但是如果查询表达式变成title:"mastering elasticsearch"~2,那么两种文档就都能够成功匹配了。</p></br>
 <p>此外，我们还可以使用加权(boosting)机制来改变关键词的重要程度。加权机制的语法是一个^符号后面接一个浮点数表示权重。如果权重小于1，就会降低关键词的重要程度。同理，如果权重大于1就会增加关键词的重要程度。默认的加权值为1。可以参考<span style="font-style:oblique">&nbsp;第2章 活用用户查询语言&nbsp;</span>的<span style="font-style:oblique">&nbsp;Lucene默认打分规则详解&nbsp;</span>章节部分的内容来了解更多关于加权(boosting)是如何影响打分排序的。</p>
@@ -75,4 +74,4 @@
 
 <h3>处理特殊字符</h3>
 <p>如果在搜索关键词中出现了如下字符集合中的任意一个字符，就需要用反斜杠(\\)进行转义。字符集合如下： +, -, &&, || , ! , (,) , { } , [ ] , ^, " , ~, *, ?, : , \, / 。例如，查询关键词 abc"efg 就需要转义成 abc\"efg。
-</p></div>
+</p>

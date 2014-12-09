@@ -45,9 +45,10 @@
 <img src="../notes/note.png" style="vertical-align:middle;"/>
 </div>
 <div style="height:100%;position:absolute;left:65px;right:13px;">
-<p style="font-size:13px;margin-top:10px;">如果想了解段由哪些文件组成，
+<p style="font-size:13px;margin-top:10px;">
+如果想了解段由哪些文件组成，
 	想了解每个文件中存储了什么信息，可以参考Apache Lucene documentation ,访问地址：
-	http://lucene.apache.org/core/4_5_0/core/org/apache/lucene/codecs/lucene45/package-summary.html.<html.
+	http://lucene.apache.org/core/4_5_0/core/org/apache/lucene/codecs/lucene45/package-summary.html.
 </p>
 </div>
 <div style="width:13px;height:100%;background:black;position:absolute;right:0px;padding:5px 0 5px 0;">
