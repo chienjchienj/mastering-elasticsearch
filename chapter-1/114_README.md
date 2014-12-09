@@ -38,21 +38,26 @@
 
 <p>除了可以应用简单的关键词和查询表达式实现标准的域查询，Lucene还支持往查询表达式中传入修饰符使关键词具有变形能力。最常用的修饰符，也是大家都熟知的，就是通配符。Lucene支持?和\*两种通配符。?可以匹配任意单个字符，而\*能够匹配多个字符。
 </p>
-<br/><!--note -->
-<div style="height:50px;width:650px;text-indent:0em;">
-<div style="float:left;width:13px;height:100%; background:black;">
-  <img src="../lm.png" height="40px" width="13px" style="margin-top:5px;"/>
+<br/>
+
+
+<!-- note structure -->
+<div style="height:110px;width:90%;position:relative;">
+<div style="width:13px;height:100%; background:black; position:absolute;padding:5px 0 5px 0;">
+<img src="../notes/lm.png" height="100%" width="13px"/>
 </div>
-<div style="float:left;width:50px;height:100%;position:relative;">
-	<img src="../note.png" style="position:absolute; top:20%; "/>
+<div style="width:51px;height:100%;position:absolute; left:13px; text-align:center; font-size:0;">
+<img src="../notes/pixel.gif" style="height:100%; width:1px; vertical-align:middle;"/>
+<img src="../notes/note.png" style="vertical-align:middle;"/>
 </div>
-<div style="float:left; width:550px;height:100%;">
-	<p style="font-size:13px;"><br/>请注意出于性能考虑，默认的通配符不能是关键词的首字母。</p>
+<div id="mid" style="height:100%;position:absolute;left:65px;right:13px;">
+<p style="font-size:13px;margin-top:10px;">请注意出于性能考虑，默认的通配符不能是关键词的首字母。
+</p>
 </div>
-<div style="float:left;width:13px;height:100%;background:black;">
-  <img src="../rm.png" height="40px" width="13px" style="margin-top:5px;"/>
+<div id="right" style="width:13px;height:100%;background:black;position:absolute;right:0px;padding:5px 0 5px 0;">
+<img src="../notes/rm.png" height="100%" width="13px"/>
 </div>
-</div>
+</div>  <!-- end of note structure -->
 <br/>
 <p>此外，Lucene支持模糊查询(fuzzy query)和邻近查询(proximity query)。语法规则是查询表达式后面接一个~符号，后面紧跟一个整数。如果查询表达式是单独一个Term，这表示我们的搜索关键词可以由Term变形(替换一个字符，添加一个字符，删除一个字符)而来，即与Term是相似的。这种搜索方式称为模糊搜索(fuzzy search)。在~符号后面的整数表示最大编辑距离。例如：执行查询表达式 "writer~2"能够搜索到含writer和writers的文档。</p>
 <p>当~符号用于一个短语时，~后面的整数表示短语中可接收的最大的词编辑距离(短语中替换一个词，添加一个词，删除一个词)。举个例子,查询表达式title:"mastering elasticsearch"只能匹配title域中含"mastering elasticsearch"的文档，而无法匹配含"mastering book elasticsearch"的文档。但是如果查询表达式变成title:"mastering elasticsearch"~2,那么两种文档就都能够成功匹配了。</p></br>
@@ -69,5 +74,5 @@
 <p style="color:gray;font-family:COURIER;">price:[10.00 TO 15.00}</p>
 
 <h3>处理特殊字符</h3>
-<p>如果在搜索关键词中出现了如下字符集合中的任意一个字符，就需要用反斜杠(\\)进行转义。字符集合如下： +, -, &&, || , ! , (,) , { } , [ ] , ^, " , ~, *, ?, : , \, / 。例如，查询关键词 abc"efg 就需要转义成 abc\"efg。</div>
-</p>
+<p>如果在搜索关键词中出现了如下字符集合中的任意一个字符，就需要用反斜杠(\\)进行转义。字符集合如下： +, -, &&, || , ! , (,) , { } , [ ] , ^, " , ~, *, ?, : , \, / 。例如，查询关键词 abc"efg 就需要转义成 abc\"efg。
+</p></div>

@@ -24,30 +24,34 @@
 <h3>Lucene概念上的打分公式</h3>
 
 <p>TF/IDF公式的概念版是下面这个样子的：</p>
-<img src="../conceptual_score_formula.png" />
+<img src="../imgs/conceptual_score_formula.png" />
 <p>上面的公式展示了布尔信息检索模型和向量空间信息检索模型的组合。我们暂时不去讨论它，直接见识实际应用的公式，它是在Lucene实现并且正在使用的公式。
 </p>
-<br/><!--note structure -->
-<div style="height:90px;width:650px;text-indent:0em;">
-    <div style="float:left;width:13px;height:100%; background:black;">
-        <img src="../lm.png" height="80px" width="13px" style="margin-top:5px;"/>
-    </div>
-    <div style="float:left;width:50px;height:100%;position:relative;">
-	    <img src="../note.png" style="position:absolute; top:30%; "/>
-    </div>
-<div style="float:left; width:550px;height:100%;">
-	<p style="font-size:13px;"><br/>关于信息检索中的布尔模型和向量空间模型不在本书的知识范围。如果想了解更多的相关知识，可以从 http://en.wikipedia.org/wiki/Standard_Boolean_model 和 http://en.wikipedia.org/wiki/Vector_Space_Model 里面了解。 </p>
+<br/>
+<!-- note structure -->
+<div style="height:90px;width:90%;position:relative;">
+<div style="width:13px;height:100%; background:black; position:absolute;padding:5px 0 5px 0;">
+<img src="../notes/lm.png" height="100%" width="13px"/>
 </div>
-<div style="float:left;width:13px;height:100%;background:black;">
-  <img src="../rm.png" height="80px" width="13px" style="margin-top:5px;"/>
+<div style="width:51px;height:100%;position:absolute; left:13px; text-align:center; font-size:0;">
+<img src="../notes/pixel.gif" style="height:100%; width:1px; vertical-align:middle;"/>
+<img src="../notes/note.png" style="vertical-align:middle;"/>
 </div>
-</div> <!-- end of note structure -->
+<div id="mid" style="height:100%;position:absolute;left:65px;right:13px;">
+<p style="font-size:13px;margin-top:10px;">
+关于信息检索中的布尔模型和向量空间模型不在本书的知识范围。如果想了解更多的相关知识，可以从 http://en.wikipedia.org/wiki/Standard\_Boolean_model 和 http://en.wikipedia.org/wiki/Vector\_Space_Model 里面了解。
+</p>
+</div>
+<div id="right" style="width:13px;height:100%;background:black;position:absolute;right:0px;padding:5px 0 5px 0;">
+<img src="../notes/rm.png" height="100%" width="13px"/>
+</div>
+</div>  <!-- end of note structure -->
 <br/>
 
 <h3>Lucene实际应用的打分公式</h3>
 
 <p>现在看看Lucene实际应用的打分公式长啥样：</p>
-<img src="../practical_score_formula.png"/>
+<img src="../imgs/practical_score_formula.png"/>
 <p>可以看到，文档的分数实际上是由查询语句q和文档d作为变量的一个函数值。打分公式中有两部分不直接依赖于查询词，它们是coord和queryNorm。 公式的值是这样计算的，coord和queryNorm两大部分直接乘以查询语句中每个查询词计算值的总和。</p>
 <p>另一方面，这个总和也是由每个查询词的词频(tf)，逆文档频率(idf)，查询词的权重，还有norm，也就是前面说的length norm相乘而得的结果。</p>
 <p>听上去有些复杂吧？不用担心，这些东西不需要全部记住。用户只需要知道在进行文档打分的时候，哪些因素是起决定作用的就可以了。基本上，从前面的公式中可以提炼出以下的几个规则：</p>
@@ -58,39 +62,50 @@
 </ul>
 <p>正如我们所看到的那样，Lucene会给具有这些特征的文档打最高分：文档内容能够匹配到较多的稀有的搜索关键词，文档的域包含较少的Term，并且域中的Term多是稀有的。
 </p>
-<br/><!--note structure -->
-<div style="height:90px;width:650px;text-indent:0em;">
-    <div style="float:left;width:13px;height:100%; background:black;">
-        <img src="../lm.png" height="80px" width="13px" style="margin-top:5px;"/>
-    </div>
-    <div style="float:left;width:50px;height:100%;position:relative;">
-	    <img src="../note.png" style="position:absolute; top:30%; "/>
-    </div>
-<div style="float:left; width:550px;height:100%;">
-	<p style="font-size:13px;"><br/>如果想了解更多关于Apache Lucene TF/IDF打分公式，请关注Apache Lucene Javadocs中的TFIDFSimilarity类，访问网址： http://lucene.apache.org/core/4_5_0/core/org/apache/lucene/search/similarities/TFIDFSimilarity.html. </p>
+<br/>
+<!-- note structure -->
+<div style="height:110px;width:90%;position:relative;">
+<div style="width:13px;height:100%; background:black; position:absolute;padding:5px 0 5px 0;">
+<img src="../notes/lm.png" height="100%" width="13px"/>
 </div>
-<div style="float:left;width:13px;height:100%;background:black;">
-  <img src="../rm.png" height="80px" width="13px" style="margin-top:5px;"/>
+<div style="width:51px;height:100%;position:absolute; left:13px; text-align:center; font-size:0;">
+<img src="../notes/pixel.gif" style="height:100%; width:1px; vertical-align:middle;"/>
+<img src="../notes/note.png" style="vertical-align:middle;"/>
 </div>
-</div> <!-- end of note structure -->
+<div id="mid" style="height:100%;position:absolute;left:65px;right:13px;">
+<p style="font-size:13px;margin-top:10px;">
+	如果想了解更多关于Apache Lucene TF/IDF打分公式，请关注Apache Lucene Javadocs中的TFIDFSimilarity类，访问网址： http://lucene.apache.org/core/4\_5_0/core/org/apache/lucene/search/similarities/TFIDFSimilarity.html.
+</p>
+</div>
+<div id="right" style="width:13px;height:100%;background:black;position:absolute;right:0px;padding:5px 0 5px 0;">
+<img src="../notes/rm.png" height="100%" width="13px"/>
+</div>
+</div>  <!-- end of note structure -->
 
 <h3>从ElasticSearch的角度看打分排序</h3>
 
 <p>最为重要的是利用Lucene构建起来的ElasticSearch允许用户修改默认的打分算法(了解更多相关的知识请参考<i>第3章 索引底层控制</i>&nbsp;中&nbsp;<i> 修改Lucene打分算法</i>一节的内容)。但是要记住，ElasticSearch不仅仅是Lucene简单的封装，因为在ElasticSearh中，文档排序并非完全依赖于Apache Lucene的打分算法。ElasticSearch中实现了多种不同的查询类型，这些查询类型可以完全控制文档打分的计算方式(比如 custom_boost_facotr query,constant_score query,custom_score query)，ElasticSearch允许通过脚本定制文档的打分方式。用户可以利用ElasticSearch 0.90版本支持的重排序(rescore)机制，重新计算搜索到的文档。也可以通过其它的查询方式处理topN 结果集，不一而足。</p>
-<br/><!--note structure -->
-<div style="height:90px;width:650px;text-indent:0em;">
-    <div style="float:left;width:13px;height:100%; background:black;">
-        <img src="../lm.png" height="80px" width="13px" style="margin-top:5px;"/>
-    </div>
-    <div style="float:left;width:50px;height:100%;position:relative;">
-	    <img src="../note.png" style="position:absolute; top:30%; "/>
-    </div>
-<div style="float:left; width:550px;height:100%;">
-	<p style="font-size:13px;"><br/>如果想了解更多关于Apache Lucene 的query类型，请参考相关的 Javadocs 。比如： http://lucene.apache.org/core/4_5_0/queries/org/apache/lucene/queries/package-summary.html.</p>
+<br/>
+
+<!-- note structure -->
+<div style="height:110px;width:90%;position:relative;">
+<div style="width:13px;height:100%; background:black; position:absolute;padding:5px 0 5px 0;">
+<img src="../notes/lm.png" height="100%" width="13px"/>
 </div>
-<div style="float:left;width:13px;height:100%;background:black;">
-  <img src="../rm.png" height="80px" width="13px" style="margin-top:5px;"/>
+<div style="width:51px;height:100%;position:absolute; left:13px; text-align:center; font-size:0;">
+<img src="../notes/pixel.gif" style="height:100%; width:1px; vertical-align:middle;"/>
+<img src="../notes/note.png" style="vertical-align:middle;"/>
 </div>
-</div> <!-- end of note structure -->
+<div id="mid" style="height:100%;position:absolute;left:65px;right:13px;">
+<p style="font-size:13px;margin-top:10px;">
+	如果想了解更多关于Apache Lucene 的query类型，请参考相关的 Javadocs 。比如： http://lucene.apache.org/core/4_5_0/queries/org/apache/lucene/queries/package-summary.html.
+</p>
+</div>
+<div id="right" style="width:13px;height:100%;background:black;position:absolute;right:0px;padding:5px 0 5px 0;">
+<img src="../notes/rm.png" height="100%" width="13px"/>
+</div>
+</div>  <!-- end of note structure -->
+
+
 <div></div>
 </div>

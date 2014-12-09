@@ -1,7 +1,8 @@
 ## 改变分片的默认分配方式
 
-<div style="text-indent:2em">
+
 <p>在前面的章节中，我们学习了很多关于分片的知识以及与之相关的特性。我们也讨论了shard allocation的工作方式(本章的<i>调整集群的分片分配</i>一节)。然而除了默认的分配方式，我们并没有探讨其它的内容。ElasticSearch提供了更多的分片分配策略来构建先进的系统。在本节，我们将更深入地了解在分片分配方面，我们还能做哪些事情。</p>
+
 <h3>ShardAllocator介绍</h3>
 <p>ShardAllocator是决定分片安置到哪个节点起主要作用的一个。 当ElasticSearch改变数据在节点上的分配时，比如集群拓扑结构的改变(当节点添加或者移出集群)或者用户强制集群进行再平衡操作，ElasticSearch中分片就需要重新分配。在ElasticSearch内部，分配器继承org.elasticsearch.cluster.routing.allocation.allocator.ShardsAllocator接口。ElasticSearch提供了两种类型的分配器，它们分别是：
 <ul>
@@ -77,4 +78,4 @@
 <p>cluster.routing.allocation.disk.watermark.low属性允许用户指定一个百分比阈值或者绝对数值来控制何时能够进行分片分配。比如默认值是0.7，表示当可用磁盘空间低于70%时，新的分片才可以分配到该节点上。</p>
 <p> cluster.routing.allocation.disk.watermark.high属性允许用户指定一个百分比阈值或者绝对数值来控制何时需要将分片分配到其它的节点。比如默认值是0.85，表示当可用磁盘空间高于85%时，ElasticSearch会重新把该节点的分片分配到其它节点。</p>
 <p> cluster.routing.allocation.disk.watermark.low属性和cluster.routing.allocation.disk.watermark.high属性都可以指定一个百分比阈值(比如0.7或者0.85)或者绝对数值(比如1000mb)。来控制何时需要将分片分配到其它的节点。比如默认值是0.85，此外，上述属性都可以通过elasticsearch.yml静态设置或者用ElasticSearch API动态调整。</p>
-</div>
+

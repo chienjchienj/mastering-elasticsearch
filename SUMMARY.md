@@ -15,7 +15,7 @@
 * [第2章 强大的用户查询语言DSL](chapter-2/README.md)
    * [Lucene默认打分算法](chapter-2/21_README.md)
    * [查询重写机制](chapter-2/22_README.md)
-   * [重排序](chapter-2/23_README.md)
+   * [查询结果的重打分](chapter-2/23_README.md)
    * [批处理](chapter-2/24_README.md)
    * [查询结果的排序](chapter-2/25_README.md)
    * [Update API](chapter-2/26_README.md)

@@ -9,21 +9,22 @@
 <p>
 有时由于某些原因，多播无法使用或者由于前面提到的一些原因，你不想使用它。在比较大的集群中，多播发现机制可能会产生太多不必要的流量开销，这是不使用多播的一个充分理由。在这种情况下，Zen发现机制引入了第二种发现节点的方法：单播模式。让我们在这个知识点上停留一段时间，了解这些模式的配置相关知识。
 </p>
-<!--note structure -->
-<div style="height:50px;width:650px;text-indent:0em;">
-<div style="float:left;width:13px;height:100%; background:black;">
-  <img src="../lm.png" height="40px" width="13px" style="margin-top:5px;"/>
+<!-- note structure -->
+<div style="height:110px;width:90%;position:relative;">
+<div style="width:13px;height:100%; background:black; position:absolute;padding:5px 0 5px 0;">
+<img src="../notes/lm.png" height="100%" width="13px"/>
 </div>
-<div style="float:left;width:50px;height:100%;position:relative;">
-	<img src="../note.png" style="position:absolute; top:30%; "/>
+<div style="width:51px;height:100%;position:absolute; left:13px; text-align:center; font-size:0;">
+<img src="../notes/pixel.gif" style="height:100%; width:1px; vertical-align:middle;"/>
+<img src="../notes/note.png" style="vertical-align:middle;"/>
 </div>
-<div style="float:left; width:550px;height:100%;">
-	<p style="font-size:13px;margin-top:5px;">如果想知道关于单播和多播ping方法更多的不同点，请参考:http://en.wikipedia.org/wiki/Multicastand http://en.wikipedia.org/wiki/Unicast. </p>
+<div id="mid" style="height:100%;position:absolute;left:65px;right:13px;">
+<p style="font-size:13px;margin-top:10px;">如果想知道关于单播和多播ping方法更多的不同点，请参考:http://en.wikipedia.org/wiki/Multicastand http://en.wikipedia.org/wiki/Unicast. </p>
 </div>
-<div style="float:left;width:13px;height:100%;background:black;">
-  <img src="../rm.png" height="40px" width="13px" style="margin-top:5px;"/>
+<div id="right" style="width:13px;height:100%;background:black;position:absolute;right:0px;padding:5px 0 5px 0;">
+<img src="../notes/rm.png" height="100%" width="13px"/>
 </div>
-</div> <!-- end of note structure -->
+</div>  <!-- end of note structure -->
 
 <h4>多播</h4>
 <p>前面已经提到，这是默认的网络传输模式。当节点并非集群的一部分时(比如节点只是刚刚启动或者重启 )，它会发送一个多播的ping请求到网段中，该请求只是用来通知所有能连接到节点和集群它已经准备好加入到集群中。关于多播发送，Zen发现模块暴露出如下的设置项：
@@ -66,21 +67,23 @@
 <p>随着ElasticSearch 0.20版本发布(有些在0.19版本中)，除默认的local类型外，其它所有的gateway类型，都将废弃并且不建议用户使用，因为在未来的ElasticSearch版本中，这些类型将被移除。如果想避免出现整个数据集重新索引的情况，用户应该只使用local类型的gateway，这也是我们为什么不探讨所有其它类型gateway的原因。
 local类型的gateway使用本机硬盘存储节点上的元数据、mappings数据、索引数据。为了能够使用这种gateway类型，需要服务器的硬盘有足够的空间在不使用内存缓存的情况下存储所有数据。local类型的gateway持久化数据的方式与其它gateway有所不同，为了确保在写数据的过程中，数据不丢失，它采用同步的方式来完成写数据的功能。
 </p>
-<!--note structure -->
-<div style="height:50px;width:650px;text-indent:0em;">
-<div style="float:left;width:13px;height:100%; background:black;">
-  <img src="../lm.png" height="40px" width="13px" style="margin-top:5px;"/>
+<!-- note structure -->
+<div style="height:50px;width:90%;position:relative;">
+<div style="width:13px;height:100%; background:black; position:absolute;padding:5px 0 5px 0;">
+<img src="../notes/lm.png" height="100%" width="13px"/>
 </div>
-<div style="float:left;width:50px;height:100%;position:relative;">
-	<img src="../note.png" style="position:absolute; top:30%; "/>
+<div style="width:51px;height:100%;position:absolute; left:13px; text-align:center; font-size:0;">
+<img src="../notes/pixel.gif" style="height:100%; width:1px; vertical-align:middle;"/>
+<img src="../notes/note.png" style="vertical-align:middle;"/>
 </div>
-<div style="float:left; width:550px;height:100%;">
-	<p style="font-size:13px;margin-top:5px;">如果想设置集群使用的gateway类型，用户需要使用gateway.type属性，默认情况下该属性值为local </p>
+<div id="mid" style="height:100%;position:absolute;left:65px;right:13px;">
+<p style="font-size:13px;margin-top:10px;">如果想设置集群使用的gateway类型，用户需要使用gateway.type属性，默认情况下该属性值为local
+</p>
 </div>
-<div style="float:left;width:13px;height:100%;background:black;">
-  <img src="../rm.png" height="40px" width="13px" style="margin-top:5px;"/>
+<div id="right" style="width:13px;height:100%;background:black;position:absolute;right:0px;padding:5px 0 5px 0;">
+<img src="../notes/rm.png" height="100%" width="13px"/>
 </div>
-</div> <!-- end of note structure -->
+</div>  <!-- end of note structure -->
 
 <h4>local类型gateway的备份</h4>
 <p>ElasticSearch直到0.90.5版本(包括该版本)都不支持存储在local类型gateway中数据的自动备份。然而，做数据备份是至关重要的，比如，如果想把集群升级到一个比较新的版本，如果升级出现了一些问题，就需要回滚操作了。为了完成上述的操作，需要执行如下的步骤：
@@ -104,21 +107,24 @@ local类型的gateway使用本机硬盘存储节点上的元数据、mappings数
 <li>indices.recovery.translog\_size: 该属性指定了从源数据分片复制事务日志数据时每次处理的数据块的大小。默认值为512KB，同时如果如果indices.recovery.compress属性设置为true，数据会被压缩。 <li>
 </ul>
 </p>
-<!--note structure -->
-<div style="height:50px;width:650px;text-indent:0em;">
-<div style="float:left;width:13px;height:100%; background:black;">
-  <img src="../lm.png" height="40px" width="13px" style="margin-top:5px;"/>
+<!-- note structure -->
+<div style="height:110px;width:90%;position:relative;">
+<div style="width:13px;height:100%; background:black; position:absolute;padding:5px 0 5px 0;">
+<img src="../notes/lm.png" height="100%" width="13px"/>
 </div>
-<div style="float:left;width:50px;height:100%;position:relative;">
-	<img src="../note.png" style="position:absolute; top:30%; "/>
+<div style="width:51px;height:100%;position:absolute; left:13px; text-align:center; font-size:0;">
+<img src="../notes/pixel.gif" style="height:100%; width:1px; vertical-align:middle;"/>
+<img src="../notes/note.png" style="vertical-align:middle;"/>
 </div>
-<div style="float:left; width:550px;height:100%;">
-	<p style="font-size:13px;margin-top:5px;">在ElasticSearch 0.90.0版本前，曾用到indices.recovery.max\_size\_per\_sec属性，但是在随后的版本中，该属性值被废弃了，由indices.recovery.max\_bytes\_per\_sec属性替代。然而，如果使用0.90.0版本前的ElasticSearch，还是有必要记住这个属性。 </p>
+<div id="mid" style="height:100%;position:absolute;left:65px;right:13px;">
+<p style="font-size:13px;margin-top:10px;">
+在ElasticSearch 0.90.0版本前，曾用到indices.recovery.max\_size\_per\_sec属性，但是在随后的版本中，该属性值被废弃了，由indices.recovery.max\_bytes\_per\_sec属性替代。然而，如果使用0.90.0版本前的ElasticSearch，还是有必要记住这个属性。
+</p>
 </div>
-<div style="float:left;width:13px;height:100%;background:black;">
-  <img src="../rm.png" height="40px" width="13px" style="margin-top:5px;"/>
+<div id="right" style="width:13px;height:100%;background:black;position:absolute;right:0px;padding:5px 0 5px 0;">
+<img src="../notes/rm.png" height="100%" width="13px"/>
 </div>
-</div> <!-- end of note structure -->
+</div>  <!-- end of note structure -->
 <p>上述的所有属性都可以通过集群的update API或者elasticsearch.yml来设置生效。</p>
 
 <h4>index-level 恢复机制的配置</h4>
