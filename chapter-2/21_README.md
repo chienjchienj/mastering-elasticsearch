@@ -1,5 +1,5 @@
 ## Lucene默认的打分算法
-<div style="text-indent:2em;">
+<div style="text-indent:2em;"></div>
 <p> 当谈论到查询的相关性，很重要的一件事就是对于给定的查询语句，如何计算文档得分。首先要弄清楚的是文档得分是什么。文档得分是一个用来描述查询语句和文档之间匹配程度的变量。在本节，我们将学习Lucene默认的打分机制：<b>TF/IDF(term frequency/inverse document frequecy)</b>算法，以及它是如何对相关文档进行打分排序。理解默认的打分算法对设计复杂查询语句来说至关重要，特别是在决定各个查询子句权重的时候。</p>
 
 <h3>匹配文档的打分因子</h3>
@@ -107,5 +107,3 @@
 </div>  <!-- end of note structure -->
 
 
-<div></div>
-</div>
