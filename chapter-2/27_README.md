@@ -255,4 +255,41 @@ curl -XGET 'localhost:9200/books/_search' -d '{
 
 ###性能优化
 
+前面的查询已经在ElasticSearch内部通过缓存机制进行了优化。terms会加载到filter cache中，并与查询命令提供的key关联起来。此外，一旦terms(在本例中是书的id信息)被加载到了缓存中，以后用到该缓存项的查询都不会再次从索引中加载，这意味着ElasticSearch可以通过缓存机制提高查询的效率。
 
+如果业务场景中用到了terms lookup功能，数据量也不大，推荐用户将索引(本例中是clients索引)只设置一个分片，同时将分片的副本分发到所有含有books索引的节点上。这样做是因为ElasticSearch默认会读取本地的索引数据来避免不必要的网络传输、网络延时，从而提升系统的性能。
+
+###从内嵌对象中加载terms
+
+如果clients索引中books属性不再是id数组，而是对象数据，那么在查询命令中，我们就需要将id属性指向到内嵌的对象。即我们需要将`"id":"books"`变成`"id":"books.book"`。
+
+###Terms lookup filter的缓存设置
+
+前面已经提到，为了提供terms lookup功能，ElasticSearch引入一种新的cache类型，该类型的的缓存基于快速的**LRU(Least Recently Used)**策略。
+
+<!-- note structure -->
+<div style="height:70px;width:90%;position:relative;">
+<div style="width:13px;height:100%; background:black; position:absolute;padding:5px 0 5px 0;">
+<img src="../notes/lm.png" height="100%" width="13px"/>
+</div>
+<div style="width:51px;height:100%;position:absolute; left:13px; text-align:center; font-size:0;">
+<img src="../notes/pixel.gif" style="height:100%; width:1px; vertical-align:middle;"/>
+<img src="../notes/note.png" style="vertical-align:middle;"/>
+</div>
+<div style="height:100%;position:absolute;left:65px;right:13px;">
+<p style="font-size:13px;margin-top:10px;">
+如果想了解更多关于LRU缓存的知识，想了解它的工作原理，请参考网页： http://en.wikipedia.org/wiki/Page\_replacement\_algorithm#Least\_recently_used
+
+</p>
+</div>
+<div style="width:13px;height:100%;background:black;position:absolute;right:0px;padding:5px 0 5px 0;">
+<img src="../notes/rm.png" height="100%" width="13px"/>
+</div>
+</div>  <!-- end of note structure -->
+
+ElasticSearch在elasticsearch.yml文件中提供了如下的参数来配置该缓存：
+<ul>
+<li>`indices.cache.filter.terms.size:`默认值为10mb，指定了ElasticSearch用于terms lookup的缓存的内存的最大容量。在绝大多数场景下，默认值已经足够，但是如果你知道你的将加载大量的数据到缓存，那么就需要增加该值。 </li>
+<li>`indices.cache.filter.terms.expire_after_access:`该属性指定了缓存项最后一次访问到失效的最大时间。默认，该属性关闭，即永不失效。</li>
+<li>`indices.cache.filter.terms.expire_after_write:`该属性指定了缓存项第一次写入到失效的最大时间。默认，该属性关闭，即永不失效。</li>
+</ul>

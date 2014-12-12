@@ -130,7 +130,7 @@ curl localhost:9200/library/books/_msearch?pretty --data-binary '
 
 
 <!-- note structure -->
-<div style="height:110px;width:90%;position:relative;">
+<div style="height:70px;width:90%;position:relative;">
 <div style="width:13px;height:100%; background:black; position:absolute;padding:5px 0 5px 0;">
 <img src="../notes/lm.png" height="100%" width="13px"/>
 </div>
