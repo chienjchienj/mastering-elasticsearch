@@ -115,7 +115,7 @@ curl -XPOST 'localhost:9200/users/_cache/clear?filter_keys=year_1981_cache'
 
 ###关键词查找过滤器
 
-缓存和标准的查询并不是全部内容。随着ElasticSearch 0.90版本的发布，我们得到了一个精巧的过滤器，它可以用来传递多个从ElasticSearch中得到值作为query的参数(类似于SQL的IN操作符)。
+缓存和标准的查询并不是全部内容。随着ElasticSearch 0.90版本的发布，我们得到了一个精巧的过滤器，它可以用来将多个从ElasticSearch中得到值作为query的参数(类似于SQL的IN操作)。
 
 让我们看一个简单的例子。假定我们有在一个在线书店，存储了用户，即书店的顾客购买的书籍信息。books索引很简单(存储在books.json文件中)：
 ```javascript
@@ -168,4 +168,91 @@ curl -XPUT 'localhost:9200/books/book/3' -d '{
  "id":"3", "title":"Test book three"
 }'
 ```
+接下来想象需求如下，我们希望展示某个用户购买的所有书籍，以id为1的user为例。当然，我们可以先执行一个请求 `curl -XGET 'localhost:9200/clients/client/1'`得到当前顾客的购买记录，然后把books域中的值取出来，执行第二个查询：
+```javascript
+curl -XGET 'localhost:9200/books/_search' -d '{
+"query" : {
+        "ids" : {
+            "type" : "book",
+            "values" : [ "1", "3" ]
+        }
+    }
+}'
+```
+这样做太麻烦了，ElasticSearch 0.90版本新引入了 关键词查询过滤器(term lookup filter)，该过滤器只需要一个查询就可以将上面两个查询才能完成的事情搞定。使用该过滤器的查询如下：
+<pre>
+curl -XGET 'localhost:9200/books/_search' -d '{
+    "query" : {
+        "filtered" : {
+            "query" : {
+                "match_all" : {}
+            },
+            "filter" : {
+                "terms" : {
+                    "id" : {
+                        "index" : "clients",
+                        "type" : "client",
+                        "id" : "1",
+                        "path" : "books"
+                    },
+                    "_cache_key" : "terms_lookup_client_1_books"
+                }
+            }
+        }
+    }
+}'
+</pre>
+
+请注意`_cache_key`参数的值，可以看到其值为`terms_lookup_client_1_books`，它里面包含了顾客id信息。请注意，如果给不同的查询设置了相同的`_cache_key`，那么结果就会出现不可预知的错误。这是因为ElasticSearch会基于指定的key来存储查询结果，然后在不同的查询中复用。
+接下来看看上述查询的返回值：
+```javascript
+{
+    ...
+    "hits" : {
+        "total" : 2,
+        "max_score" : 1.0,
+        "hits" : [ {
+            "_index" : "books",
+            "_type" : "book",
+            "_id" : "1",
+            "_score" : 1.0, "_source" : {"id":"1", "title":"Test book one"}
+        }, {
+            "_index" : "books",
+            "_type" : "book",
+            "_id" : "3",
+            "_score" : 1.0, "_source" : {"id":"3", "title":"Test book three"}
+        } ]
+    }
+}
+```
+这正是我们希望看到的结果，太棒了！
+
+### term filter的工作原理
+
+回顾我们发送到ElasticSearch的查询命令。可以看到，它只是一个简单的过滤查询，包含一个全量查询和一个terms 过滤器。只是该查询命令中，terms 过滤器使用了一种不同的技巧——不是明确指定某些term的值，而是从其它的索引中动态加载。
+
+可以看到，我们的过滤器基于id域，这是因为只需要id域就整合其它所有的属性。接下来就需要关注id域中的新属性：index,type,id,和path。idex属性指明了加载terms的索引源(在本例中是clients索引)。type属性告诉ElasticSearch我们的目标文档类型(在本例中是client类型)。id属性指明的我们在指定索引的指文档类型中的目标文档。最后，path属性告诉ElasticSearch应该从哪个域中加载term，在本例中是clients索引的books域。
+    总结一下，ElasticSearch所做的工作就是从clients索引的client文档类型中，id为1的文档里加载books域中的term。这些取得的值将用于terms filter来过滤从books索引(命令执行的目的地是books索引)中查询到的文档，过滤条件是文档id域(本例中terms filter名称为id)的值在过滤器中存在。
+
+<!-- note structure -->
+<div style="height:50px;width:90%;position:relative;">
+<div style="width:13px;height:100%; background:black; position:absolute;padding:5px 0 5px 0;">
+<img src="../notes/lm.png" height="100%" width="13px"/>
+</div>
+<div style="width:51px;height:100%;position:absolute; left:13px; text-align:center; font-size:0;">
+<img src="../notes/pixel.gif" style="height:100%; width:1px; vertical-align:middle;"/>
+<img src="../notes/note.png" style="vertical-align:middle;"/>
+</div>
+<div style="height:100%;position:absolute;left:65px;right:13px;">
+<p style="font-size:13px;margin-top:10px;">
+请注意_source域必须存储，否则terms lookup功能无法使用。
+</p>
+</div>
+<div style="width:13px;height:100%;background:black;position:absolute;right:0px;padding:5px 0 5px 0;">
+<img src="../notes/rm.png" height="100%" width="13px"/>
+</div>
+</div>  <!-- end of note structure -->
+
+###性能优化
+
 
