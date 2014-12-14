@@ -97,8 +97,8 @@ curl -XGET 'localhost:9200/posts/_mapping?pretty'
 如下的倒排表格式可用：
 
 * `default`: 如果没有明确指定使用哪种格式，那么就是它了。它提供了存储域和词向量的快速压缩。如果希望了解压缩相关的知识，可以参考  http://solr.pl/en/2012/11/19/solr-4-1-stored-fields-compression/.
-* `plusing`:它将高基数域(数量而非顺序)的倒排表转换到terms数组中。这样在检索一个文档时，就可以避免频繁定位操作。在高基数域中，能够提高查询的效率。
-* `direct`:
+* `plusing`:它将高基数域(数量而非顺序)的倒排表转换到terms数组中。这样在检索一个文档时，就可以避免频繁的定位操作。在高基数域中，使用该类型的Codec能够提高查询的效率。
+* `direct`:该codec用于读取大量的terms到数组中，terms都以非压缩状态保存在内存中。对于频繁用到的域，使用该codec可以提升性能，但是需要注意的是，由于terms和倒排表都存储在内存中，很容易出现内存溢出的问题。
 
 <!-- note structure -->
 <div style="height:80px;width:90%;position:relative;">
@@ -119,7 +119,9 @@ curl -XGET 'localhost:9200/posts/_mapping?pretty'
 </div>
 </div>  <!-- end of note structure -->
 
-* `memory`:
-* `bloom_defalut`:
-* `bloom_plusing`:
+* `memory`:正如它的名字一样，该codec将所有的数据写到硬盘上，但是使用一种叫FST(Finite State Transducers)的数据结构把terms和倒排表读取到内存中。关于FST结构的更多信息，可以参考Mike McCandless 的博客 //blog.mikemccandless.com/2010/12/using-finite-state-transducers-in.html 。由于数据存储在内存中，对于频繁访问的terms，使用该Codec可以提升性能。
+* `bloom_defalut`:这是`default`类型Codec的扩展版本，它添加了一个bloom filter(布隆过滤器，功能类似于Hash，但是超级节约内存)的功能。当读取数据时，它会被加载到内存中，用来快速检验某个值是否存在。该Codec对于类似于主键的高基数域非常有用。关于布隆过滤器的更多信息，可以参考：http://en.wikipedia.org/wiki/Bloom_filter 。需要记住，它就是在default类型Codec的基础上添加了bloom filter功能模块。
+* `bloom_plusing`:这是`plusing`类型codec的扩展版本。就是在plusing类型Codec的基础上添加了bloom filter功能模块。
+
+##配置codec的行为
 
