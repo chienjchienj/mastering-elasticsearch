@@ -30,3 +30,60 @@
 <img src="../notes/rm.png" height="100%" width="13px"/>
 </div>
 </div>  <!-- end of note structure -->
+
+###配置每个域的相似度模型
+
+在ElasticSearch 0.90版本以后，用户就可以在mappings中为每个域设置不同的相似度模型。例如，假定我们用如下的简单的mapping来存储博客的帖子(mapping保存在posts_no_similarity.json文件中)：
+```javascript
+{
+    "mappings" : {
+        "post" : {
+            "properties" : {
+            "id" : { "type" : "long", "store" : "yes",
+            "precision_step" : "0" },
+            "name" : { "type" : "string", "store" : "yes", "index" :
+            "analyzed" },
+            "contents" : { "type" : "string", "store" : "no", "index"
+            : "analyzed" }
+            }
+        }
+    }
+}
+```
+我们希望将BM25相似度模型用于`name`域和`contents`域。为了实现这一点，我们扩展域的定义，将similarity属性以及选定的相似度模型的名称添加到mapping中。修改后的mappings(保存在posts_similarity.json文件中)如下：
+```javascript
+{
+    "mappings" : {
+        "post" : {
+            "properties" : {
+                "id" : { "type" : "long", "store" : "yes",
+                "precision_step" : "0" },
+                "name" : { "type" : "string", "store" : "yes", "index" :
+                "analyzed", "similarity" : "BM25" },
+                "contents" : { "type" : "string", "store" : "no", "index"
+                : "analyzed", "similarity" : "BM25" }
+            }
+        }
+    }
+}
+```
+经过这样简单的设置就可以实现更换打分模型的目标了，简单就是这么任性。经过前面的修改后，Apache Lucene就会使用BM25相似度模型为文档的`name`域和`content`域打分了。
+
+<!-- note structure -->
+<div style="height:50px;width:90%;position:relative;">
+<div style="width:13px;height:100%; background:black; position:absolute;padding:5px 0 5px 0;">
+<img src="../notes/lm.png" height="100%" width="13px"/>
+</div>
+<div style="width:51px;height:100%;position:absolute; left:13px; text-align:center; font-size:0;">
+<img src="../notes/pixel.gif" style="height:100%; width:1px; vertical-align:middle;"/>
+<img src="../notes/note.png" style="vertical-align:middle;"/>
+</div>
+<div style="height:100%;position:absolute;left:65px;right:13px;">
+<p style="font-size:13px;margin-top:10px;">
+对于DFR模型和IB模型的配置，还需要一些额外的参数。如何设置将在本节下面部分的内容中呈现。
+</p>
+</div>
+<div style="width:13px;height:100%;background:black;position:absolute;right:0px;padding:5px 0 5px 0;">
+<img src="../notes/rm.png" height="100%" width="13px"/>
+</div>
+</div>  <!-- end of note structure -->
