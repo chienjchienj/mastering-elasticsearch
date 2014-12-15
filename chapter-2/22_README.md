@@ -140,7 +140,7 @@ curl -XGET 'localhost:9200/clients/client/_mapping?pretty'
 ```javascript
     ConstantScore(name:jack name:jane name:joe)
 ```
-这意味着我们的前缀查询(prefix query)重写成了一个常量得分查询(constant score query)，即由3个term query组合而成的布尔查询(bool query)。即Lucene所做的就是列举索引中存在的以j为前缀的关键词，并且每个词都构建出一个query对象。如果将重写后的查询与没有重写的查询进行比较，可以看到使用重写后的查询会提供系统的性能，特别是在不同关键词数量较多的索引中。
+这意味着我们的前缀查询(prefix query)重写成了一个常量得分查询(constant score query)，即由3个term query组合而成的布尔查询(bool query)。即Lucene所做的就是列举索引中存在的以j为前缀的关键词，并且每个词都构建出一个query对象。如果将重写后的查询与没有重写的查询进行比较，可以看到使用重写后的查询会使系统的性能有所提升，特别是在不同关键词数量较多的索引中。
 
 如果我们自己手工构建一个重写的查询，其结果可能如下所示(查询语句的内容已经保存在constant\_score\_query.json文件中)：
 ```javascript
