@@ -190,11 +190,11 @@ curl -XGET 'localhost:9200/clients/client/_mapping?pretty'
 
 接下来，了解rewrite参数有哪些选项可用：
 
-* `score_boolean`:
-* `constant_score_boolean`:
-* `constant_score_filter`:
-* `top_terms_N`:
-* `top_terms_boost_N`:
+* `scoring_boolean`:该重写方法将对应的关键词转换成布尔查询的布尔Should子句，它有可能是CPU密集型的(因为每个关键词都需要计算得分)，而且如果关键词数量太多，则会超出布尔查询的限制，限制条件的上限是1024。与此同时，该类型的查询语句还保存计算的得分。布尔查询的默认数量限制可以通过修改elasticsearch.yml文件中的`index.query.bool.max_clause_count`属性值来修改。但始终要记住的是，产生的布尔查询子句越多，查询的性能越低。
+* `constant_score_boolean`:该重写方法与上面提到的`scoring_boolean`重写方法类似，但是CPU消耗要低很多，因为它不计算得分，每个关键词的得分就是查询的权重，默认是1，也可以通过权重属性来设置其它的值。与`scoring_boolean`重写方法类似，该方法也受到布尔查询数量的限制。
+* `constant_score_filter`:如Apache Lucene Javadocs中所述，该重写方法通过对前缀创建一个私有的过滤器，然后查询文档。(即把查询处理成过滤模式) 。对于匹配的文档，给定一个与查询权重一样的得分。该方法比`scoring_boolean`要快,特别是索引中匹配的文档或者与前缀匹配的关键词数量比较大时。
+* `top_terms_N`:该重写方法将对应的关键词转换成布尔查询的布尔Should子句，同时保存计算得分。只是与`scoring_boolean`不同点在于，它只保留前N个关键词，来避免触发布尔子句数量的上限。
+* `top_terms_boost_N`:该重写方法与`top_terms_N`类似，只是得分的计算只与权重有关，与查询词无关。
 
 <!-- note structure -->
 <div style="height:70px;width:90%;position:relative;">
