@@ -61,6 +61,22 @@ curl -XGET 'localhost:9200/clients/_search?pretty' -d '{
   }
 }'
 ```
+<b>[勘误]</b>
+需要注意的是，经验证，在elasticsearch 1.3.4版本中，该查询语法会出现解析错误。可以参考《ElasticSearch Server》一书以及es的源码QueryParseContext.parseInnerQuery()方法。
+一本书难免会出现错误，如果读者能发现错误，则对书本内容的领悟自然更进一步。
+正确的语法格式是：
+```javascript
+{
+	"query":{
+		"prefix":{
+			"name":{
+				"value":"j",
+				"rewrite":"constant_score_boolean"
+			}
+		}
+	}
+}
+```
 
 <p>
 我们用的是一个简单的前缀查询；前面说过我们的目的是找到符合以下条件的文档：name域中包含以字符 j 开头的Term。我们用rewrite参数来指定重写查询的方法，关于该参数的取值我们稍后讨论。运行前面的查询命令，我们得到的结果如下：</p>
@@ -96,5 +112,106 @@ curl -XGET 'localhost:9200/clients/_search?pretty' -d '{
 }
 ```
 
+可以看到，在返回结果中，有4个文档的name域中的文本是以目标字符，即j开头。由于我们没有明确定义mappings，所以ElasticSearch会将name域自动识别字符串类型并进行分析。我们可以通过如下的命令验证这一点:
+```javascript
+curl -XGET 'localhost:9200/clients/client/_mapping?pretty'
+```
+执行命令，ElasticSearch会返回如下的结果：
+```javascript
+{
+    "client" : {
+        "properties" : {
+            "id" : {
+                "type" : "string"
+            },
+            "name" : {
+                "type" : "string"
+            }
+        }
+    }
+}
+```
+###回到Apache Lucene
 
+现在，让我们加到Apache Lucene的内部实现。如果你能回忆起Lucene倒排索引存储的内容，应该能想到倒排索引的每条记录保存着一个关键词，以及关键词的出现次数，以及对应文档的指针(如果没有回忆起来，请参考<b>第1章 认识ElasticSearch</b>的<b>认识Apache Lucene</b>一节的内容 )。对于我们clients索引来说，倒排索引的简化版如下：
+<center><img src="../imgs/22-inveredindex.png"/></center>
+
+在表格的关键词那一列中呈现的关键词是非常重要的。如果我们跟踪过ElasticSearch和Apache Lucene的源码，就可以看到prefix query重写成为如下的Lucene query:
+```javascript
+    ConstantScore(name:jack name:jane name:joe)
+```
+这意味着我们的前缀查询(prefix query)重写成了一个常量得分查询(constant score query)，即由3个term query组合而成的布尔查询(bool query)。即Lucene所做的就是列举索引中存在的以j为前缀的关键词，并且每个词都构建出一个query对象。如果将重写后的查询与没有重写的查询进行比较，可以看到使用重写后的查询会提供系统的性能，特别是在不同关键词数量较多的索引中。
+
+如果我们自己手工构建一个重写的查询，其结果可能如下所示(查询语句的内容已经保存在constant\_score\_query.json文件中)：
+```javascript
+{
+    "query" : {
+        "constant_score" : {
+            "query" : {
+                "bool" : {
+                    "should" : [
+                    {
+                        "term" : {
+                            "name" : "jack"
+                        }
+                    },
+                    {
+                        "term" : {
+                            "name" : "jane"
+                        }
+                    },
+                    {
+                        "term" : {
+                            "name" : "joe"
+                        }
+                    }
+                    ]
+                }
+            }
+        }
+    }
+}
+```
+接下来了解一下查询重写机制可以匹配的功能选项有哪些。
+
+###查询重写的相关属性
+
+前面已经提到rewrit参数可以用于任何多关键词查询(multiterm query，比如ElasticSearch中的prefix和wildcard查询)，通过该参数可以控制查询的重写方式。rewrite的用法是将rewrite参数放到query对象的JSON对象中，比如：
+<pre>
+{
+    "query" : {
+        "prefix" : {
+            "name" : "j",
+           <b> "rewrite" : "constant_score_boolean"</b>
+        }
+    }
+}
+</pre>
+
+接下来，了解rewrite参数有哪些选项可用：
+
+* `score_boolean`:
+* `constant_score_boolean`:
+* `constant_score_filter`:
+* `top_terms_N`:
+* `top_terms_boost_N`:
+
+<!-- note structure -->
+<div style="height:70px;width:90%;position:relative;">
+<div style="width:13px;height:100%; background:black; position:absolute;padding:5px 0 5px 0;">
+<img src="../notes/lm.png" height="100%" width="13px"/>
+</div>
+<div style="width:51px;height:100%;position:absolute; left:13px; text-align:center; font-size:0;">
+<img src="../notes/pixel.gif" style="height:100%; width:1px; vertical-align:middle;"/>
+<img src="../notes/note.png" style="vertical-align:middle;"/>
+</div>
+<div id="mid" style="height:100%;position:absolute;left:65px;right:13px;">
+<p style="font-size:13px;margin-top:10px;">
+	当rewrite属性值设置为`constant_score_auto`或者不设置该属性时，`constant_score_filter`或者`constant_score_boolean`就会作为默认值，究竟选择哪个取决于查询的类型以构建方式。
+</p>
+</div>
+<div id="right" style="width:13px;height:100%;background:black;position:absolute;right:0px;padding:5px 0 5px 0;">
+<img src="../notes/rm.png" height="100%" width="13px"/>
+</div>
+</div>  <!-- end of note structure -->
 

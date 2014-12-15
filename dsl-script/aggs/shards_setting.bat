@@ -1,0 +1,1 @@
+curl -XPUT localhost:9200/documents -d @shards.json

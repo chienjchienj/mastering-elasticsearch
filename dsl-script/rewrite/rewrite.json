@@ -1,0 +1,10 @@
+{
+	"query":{
+		"prefix":{
+			"name":{
+				"value":"n",
+				"rewrite":"constant_score_boolean"
+			}
+		}
+	}
+}

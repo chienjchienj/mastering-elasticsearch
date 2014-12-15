@@ -1,0 +1,36 @@
+{
+   "size": 0,
+   "aggregations": {
+      "baseball_player_ring": {
+         "geo_distance": {
+            "field": "location",
+            "origin": "46.12,-68.55",
+            "unit": "mi",
+            "ranges": [
+               {
+                  "from": 0,
+                  "to": 20
+               }
+            ]
+         },
+         "aggregations": {
+            "ring_age_ranges": {
+               "range": {
+                  "script": "DateTime.now().year - doc[\"birthdate\"].date.year",
+                  "ranges": [
+                      { "from": 20, "to": 25 },
+                      { "from": 25, "to": 30 }
+                  ]
+               },
+               "aggregations": {
+                  "rating_stats": {
+                     "stats": {
+                        "field": "rating"
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+}

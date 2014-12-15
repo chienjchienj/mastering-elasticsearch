@@ -1,0 +1,1 @@
+curl -XGET "localhost:9200/clients/_search?pretty" -d @rewrite.json

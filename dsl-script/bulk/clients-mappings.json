@@ -1,0 +1,11 @@
+{
+   "mappings": {
+      "athlete": {
+         "properties": {
+            "name": {
+               "type": "string"
+            },
+         }
+      }
+   }
+}

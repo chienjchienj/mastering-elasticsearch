@@ -1,0 +1,18 @@
+{
+   "size": 0,
+   "aggregations": {
+      "baseball_player_ring": {
+         "geo_distance": {
+            "field": "location",
+            "origin": "46.12,-68.55",
+            "unit": "mi",
+            "ranges": [
+               {
+                  "from": 0,
+                  "to": 20
+               }
+            ]
+         }
+      }
+   }
+}

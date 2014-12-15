@@ -1,0 +1,16 @@
+{
+   "size": 0,
+   "aggregations": {
+      "age_ranges": {
+         "range": {
+            "script": "DateTime.now().year - doc[\"birthdate\"].date.year",
+            "ranges": [
+               {
+                  "from": 22,
+                  "to": 25
+               }
+            ]
+         }
+      }
+   }
+}

@@ -1,0 +1,1 @@
+curl -XPOST "http://localhost:9200/sports/athlete/_search?pretty" -d @search5.json

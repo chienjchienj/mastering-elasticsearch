@@ -1,0 +1,24 @@
+{
+   "mappings": {
+      "athlete": {
+         "properties": {
+            "birthdate": {
+               "type": "date",
+               "format": "dateOptionalTime"
+            },
+            "location": {
+               "type": "geo_point"
+            },
+            "name": {
+               "type": "string"
+            },
+            "rating": {
+               "type": "integer"
+            },
+            "sport": {
+               "type": "string"
+            }
+         }
+      }
+   }
+}

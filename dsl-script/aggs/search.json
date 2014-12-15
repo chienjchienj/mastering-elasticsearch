@@ -1,0 +1,20 @@
+{
+   "size": 10, 
+   "aggregations": {
+      "the_name": {
+         "terms": {
+            "field": "name",
+            "order": {
+               "rating_avg": "desc"
+            }
+         },
+         "aggregations": {
+            "rating_avg": {
+               "avg": {
+                  "field": "rating"
+               }
+            }
+         }
+      }
+   }
+}
