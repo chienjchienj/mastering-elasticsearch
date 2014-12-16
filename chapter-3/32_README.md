@@ -75,10 +75,51 @@
 
 ###配置TF/IDF相似度模型
 
+使用TF/IDF相似度模型时，对用户开放的只有`discount_overlaps`一个属性，属性默认值为true。默认情况下，tokens的位置增量值为0(即它们都是重叠在一起的)，在计算文档得分时位置增量不会算在其中。如果我们希望位置增量用于文档得分，则需要配置`discount_overlaps`属性值为true。 注：可以参考DefaultSimilarity.lengthNorm()方法的源码。
+
 ###配置Okapi BM25相似度模型
 
+使用Okapi BM25相似度模型时，有如下的参数可以配置：
+* k1 参数(控制<b>饱和度(saturation)</b>，非线性的词频归一化参数),是一个浮点数。
+* b 参数(控制词频影响文档长度的方式),是一个浮点数。
+* discount_overlaps属性，用法与TF/IDF相似度模型一样。
+
 ###配置DFR相似度模型
+使用DFR相似度模型时，有如下的参数可以配置：
+* basic_model参数(取值范围为: be,d,g,if,in和ine)
+* after_effect参数(取值范围为:no,b和l)
+* normalization参数(聚会范围为:no,h1,h2,h3或z)
+
+如果我们配置归一化参数值为除no外的其它值，我们需要设置归一化因子。归一化因子取决与我们选择的归一化方式。对于 h1 归一化方法，我们需要使用normalization.h1.c参数(float类型)。
+对于 h2 归一化方法，我们需要使用normalization.h2.c参数(float类型)。对于 h3 归一化方法，我们需要使用normalization.h3.c参数(float类型)。对于 z 归一化方法，我们需要使用normalization.z.z参数(float类型)。下面的一段代码展示了相似度模型的配置样例：
+```javascript
+"similarity" : {
+    "esserverbook_dfr_similarity" : {
+        "type" : "DFR",
+        "basic_model" : "g",
+        "after_effect" : "l",
+        "normalization" : "h2",
+        "normalization.h2.c" : "2.0"
+    }
+}
+```
 
 ###配置IB相似度模型
 
+使用IB相似度模型，我们可以配置如下的参数：
+* distribution属性(取值范围为ll或者spl)
+* lambda属性(取值范围为df或者 tff)
+
+此外，我们还可以选择DFR相似度模型中使用的归一化因子，这里就不再赘述。下面的一段代码展示了相似度模型的配置样例：
+```javascript
+"similarity" : {
+    "esserverbook_ib_similarity" : {
+        "type" : "IB",
+        "distribution" : "ll",
+        "lambda" : "df",
+        "normalization" : "z",
+        "normalization.z.z" : "0.25"
+    }
+}
+```
 
