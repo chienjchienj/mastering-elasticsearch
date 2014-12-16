@@ -125,3 +125,96 @@ curl -XGET 'localhost:9200/posts/_mapping?pretty'
 
 ##配置codec的行为
 
+对于绝大多数应用场景而言，各种倒排表结构的默认设置项中心满足业务需求了，但还是避免不了一些特殊情况，这时就需要改变默认的设置项以满足业务需求。ElasticSearch允许用户通过索引设置相关的API来配置codec。比如，如果想配置`default`类型的codec，命名为`custom_default`，就可以定义如下的mappings(保存在posts\_codec_custom.json文件中):
+```javascript
+{
+    "settings" : {
+        "index" : {
+            "codec" : {
+                "postings_format" : {
+                    "custom_default" : {
+                        "type" : "default",
+                        "min_block_size" : "20",
+                        "max_block_size" : "60"
+                    }
+                }
+            }
+        }
+    },
+    "mappings" : {
+        "post" : {
+            "properties" : {
+                "id" : { "type" : "long", "store" : "yes",
+                "precision_step" : "0" },
+                "name" : { "type" : "string", "store" : "yes", "index" :
+                "analyzed", "postings_format" : "custom_default" },
+                "contents" : { "type" : "string", "store" : "no", "index"
+                : "analyzed" }
+            }
+        }
+    }
+}
+```
+可以看到，我们改变了`default`类型的codec的`min_block_size`和`max_block_size`属性，同时我们也给新配置的codec命名为`custom_default`。然后，我们将它应用于`name`域数据的索引。
+
+###Default类型codec的属性
+当使用Defaults类型的codec时，可以使用如下的属性：
+* `min_block_size`:它用来指定Lucene词典在编码数据块时，数据块的最小容量，默认值是25。
+* `max_block_size`:它用来指定Lucene词典在编码数据块时，数据块的最大容量，默认值是48。
+译者注：可以参考DefaultPostingsFormatProvider类的源码了解内部实现。
+
+###Direct类型codec的属性
+direct类型的codec允许用户配置如下的属性：
+* `min_skip_count`:该属性指定了terms在写入跳跃表时共享前缀的最小值，默认为8。
+* `low_freq_cutoff`:direct类型的codec将使用单个数组对象来存储文档频率低于本属性值的倒排索引和位置信息。默认值是32。
+译者注：可以参考DirectPostingsFormatProvider类的源码了解内部实现。
+
+###Memory类型codec的属性
+
+使用`memory`类型的codec，可以修改如下的属性值：
+* `pack_fst`:这是一个布尔类型的选项，默认值是false。指明存储倒排索引的内存结构是否要压缩到FST中。压缩到FST可以减少内存的消耗。
+* `acceptable_overhead_ratio`:内部数据结构(FST)用到的压缩率，是一个float类型值，默认为0.2(在es-1.3.4版本中是0.25)。如果其值为0，导致的结果就是没有额外的内存开销，但是执行时间就会慢一些。如果其值为0.5，导致的结果就是有50%的额外内存开销，但是执行时间就会快一些。高于1的值系统也会接受，但是会导致比较高的额外内存使用。
+译者注：可以参考MemoryPostingsFormatProvider类的源码了解内部实现。
+
+###Pulsing类型codec的属性
+如果使用`plusing`类型的codec，除了`default`类型允许配置的参数外，还可以配置一个：
+* `freq_cut_off`:默认值为1。文档频率会决定倒排表是否写入到词典中。文档的频繁等于或者低于`freq_cut_off`时，文档将会被特殊处理。
+译者注：由于涉及到Lucene的底层，故稍微有点复杂。这里应该是一种数据压缩的策略，针对大量长尾词。可参考PulsingPostingsFormatProvider类的源码了解内部实现。
+
+###基于布隆过滤器codec的属性
+如果希望用基于布隆过滤器的codec，则需要用到`bloom_filter`类型，并且可以设置如下的值：
+
+* `delegate`:它指定了被布隆过滤器装饰的codec的名称。
+* `ffp`:它的值区间为0和1.0。用来指定误报的概率(如果对BloomFilter的原理有了解，就能理解误报这一概念)。系统允许用户基于Lucene的索引段的文档数设定多个概率值。比如，默认值是 `10k=0.01,1m=0.03`，表明当每个段的文档数大于10.000时，0.01就会被使用，当每个段的文档数量大于1.000.000时0.03就会被使用
+
+
+例如，我们可以像下面代码所示的那样，配置布隆过滤器基于`direct`类型的倒排表结构(代码保存在posts\_bloom_custom.json文件中):
+```javascript
+{
+    "settings" : {
+        "index" : {
+            "codec" : {
+                "postings_format" : {
+                    "custom_bloom" : {
+                        "type" : "bloom_filter",
+                        "delegate" : "direct",
+                        "ffp" : "10k=0.03,1m=0.05"
+                    }
+                }
+            }
+        }
+    },
+    "mappings" : {
+        "post" : {
+            "properties" : {
+                "id" : { "type" : "long", "store" : "yes",
+                "precision_step" : "0" },
+                "name" : { "type" : "string", "store" : "yes", "index" :
+                "analyzed", "postings_format" : "custom_bloom" },
+                "contents" : { "type" : "string", "store" : "no", "index"
+                : "analyzed" }
+            }
+        }
+    }
+}
+```

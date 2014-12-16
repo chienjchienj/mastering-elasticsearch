@@ -1,0 +1,1 @@
+curl -XPUT "localhost:9200/posts1/" -d @index.json

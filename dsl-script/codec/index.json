@@ -1,0 +1,27 @@
+{
+"settings" : {
+"index" : {
+"codec" : {
+"postings_format" : {
+"custom_default" : {
+"type" : "default",
+"min_block_size" : "20",
+"max_block_size" : "60"
+} 
+}
+}
+}
+}, 
+"mappings" : {
+"post" : {
+"properties" : {
+"id" : { "type" : "long", "store" : "yes", 
+"precision_step" : "2" },
+"name" : { "type" : "string", "store" : "yes", "index" : 
+"analyzed", "postings_format" : "custom_default" },
+"contents" : { "type" : "string", "store" : "no", "index" 
+: "analyzed" }
+}
+}
+}
+}

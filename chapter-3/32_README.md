@@ -88,7 +88,7 @@
 使用DFR相似度模型时，有如下的参数可以配置：
 * basic_model参数(取值范围为: be,d,g,if,in和ine)
 * after_effect参数(取值范围为:no,b和l)
-* normalization参数(聚会范围为:no,h1,h2,h3或z)
+* normalization参数(取值范围为:no,h1,h2,h3或z)
 
 如果我们配置归一化参数值为除no外的其它值，我们需要设置归一化因子。归一化因子取决与我们选择的归一化方式。对于 h1 归一化方法，我们需要使用normalization.h1.c参数(float类型)。
 对于 h2 归一化方法，我们需要使用normalization.h2.c参数(float类型)。对于 h3 归一化方法，我们需要使用normalization.h3.c参数(float类型)。对于 z 归一化方法，我们需要使用normalization.z.z参数(float类型)。下面的一段代码展示了相似度模型的配置样例：
