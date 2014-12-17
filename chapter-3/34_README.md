@@ -47,3 +47,15 @@ curl –XGET localhost:9200/test/_refresh
 如果在搜索前执行了上面的命令，那么ElasticSearch就可以搜索到修改后的文档。
 
 ###修改Searcher对象默认的更新时间
+
+Searcher对象的默认更新时间可以通过使用`index.refresh_interval`参数来修改，该参数无论是添加到ElasticSearch的配置文件中或者使用update settings API都可以生效。例如：
+```javascript
+curl -XPUT localhost:9200/test/_settings -d '{
+    "index" : {
+        "refresh_interval" : "5m"
+    }
+}'
+```
+上面的命令将使Searcher每5秒钟自动更新一次。请记住在更新两个时间点之间添加到索引的数据对查询是不可见的。
+
+
