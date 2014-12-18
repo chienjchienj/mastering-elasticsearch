@@ -59,3 +59,76 @@ curl -XPUT localhost:9200/test/_settings -d '{
 上面的命令将使Searcher每5秒钟自动更新一次。请记住在更新两个时间点之间添加到索引的数据对查询是不可见的。
 
 
+<!-- note structure -->
+<div style="height:80px;width:90%;position:relative;">
+<div style="width:13px;height:100%; background:black; position:absolute;padding:5px 0 5px 0;">
+<img src="../notes/lm.png" height="100%" width="13px"/>
+</div>
+<div style="width:51px;height:100%;position:absolute; left:13px; text-align:center; font-size:0;">
+<img src="../notes/pixel.gif" style="height:100%; width:1px; vertical-align:middle;"/>
+<img src="../notes/note.png" style="vertical-align:middle;"/>
+</div>
+<div style="height:100%;position:absolute;left:65px;right:13px;">
+<p style="font-size:13px;margin-top:10px;">
+我们已经提到，更新操作的时间开销和内存开销都很大。更新的时间段设置越长，索引速度越快。如果在整个索引过程中数据都不必对搜索可见，那么可以考虑关闭更新操作来换取高效的索引过程，设置index.refresh_interval 参数值为-1即可，记得在索引完成后改回原来的值。
+</p>
+</div>
+<div style="width:13px;height:100%;background:black;position:absolute;right:0px;padding:5px 0 5px 0;">
+<img src="../notes/rm.png" height="100%" width="13px"/>
+</div>
+</div>  <!-- end of note structure -->
+
+###事务日志的配置
+
+如果事务日志的默认配置无法满足业务需求，ElasticSearch允许用户在事务日志的处理上自己配置参数。如下的参数可以控制系统的事务日志行为，参数可以设置在elasticsearch.yml文件中，也可以用索引设置更新API来设置：
+* `index.translog.flush_threshold_period`:默认值为30秒(30m)。该属性用于控制自动刷新的时间，即使期间没有数据写入，也会强制刷新。
+* `index.translog.flush_threshold_ops`:用来指定刷新操作执行的最多事务次数。默认值是5000。
+* `index.translog.flush_threshold_size`:用来指定事务日志的最大容量。如果事务日志的大小等于或者超过参数值，就会执行刷新操作。默认值是200M.
+* `index.translog.disable_flush`:该属性用来关闭自动刷新。默认情况下日志的自动刷新是开启的，但是有时需要暂时关闭日志的自动刷新。比如需要添加大量数据到集群中时，关闭日志的自动刷新有助于系统性能的提升。
+
+<!-- note structure -->
+<div style="height:50px;width:90%;position:relative;">
+<div style="width:13px;height:100%; background:black; position:absolute;padding:5px 0 5px 0;">
+<img src="../notes/lm.png" height="100%" width="13px"/>
+</div>
+<div style="width:51px;height:100%;position:absolute; left:13px; text-align:center; font-size:0;">
+<img src="../notes/pixel.gif" style="height:100%; width:1px; vertical-align:middle;"/>
+<img src="../notes/note.png" style="vertical-align:middle;"/>
+</div>
+<div style="height:100%;position:absolute;left:65px;right:13px;">
+<p style="font-size:13px;margin-top:10px;">
+上面的所有参数都定义于某个索引，但是作用于索引的每个分片上。
+</p>
+</div>
+<div style="width:13px;height:100%;background:black;position:absolute;right:0px;padding:5px 0 5px 0;">
+<img src="../notes/rm.png" height="100%" width="13px"/>
+</div>
+</div>  <!-- end of note structure -->
+
+当然，除了预先在elasticsearch.yml文件中设置这些参数外，它们还可以用Settings Update API来设置,比如：
+```javascript
+curl -XPUT localhost:9200/test/_settings -d '{
+    "index" : {
+        "translog.disable_flush" : true
+    }
+}'
+```
+上面的命令一般用于导入大量数据到索引前执行，这样会提升索引阶段的性能。但是要记住，数据索引完毕后要开启事务日志的自动刷新。
+
+###近实时GET
+
+事务日志带来的副产品就是实时GET操作，即提供了返回早期版本文档，包括未提交文档的功能。实时GET操作从索引中获取数据，但事先会从事务日志中查看是否有更新的版本。如果存在没有刷新的文档，索引中的数据就会被忽略，返回更新版本的文档——事务日志中的文档。想弄清楚该如何使用该功能，可以用户如下的命令代替搜索操作：
+```javascript
+curl -XGET localhost:9200/test/test/1?pretty
+```
+ElasticSearch返回的结果如下：
+```javascript
+{
+    "_index" : "test",
+    "_type" : "test",
+    "_id" : "1",
+    "_version" : 2,
+    "exists" : true, "_source" : { "title": "test2" }
+}
+```
+如果看到结果，你肯定会再多看一眼，因为返回的文档就是最新的。不需要Searcher的更新也得到想要的结果。

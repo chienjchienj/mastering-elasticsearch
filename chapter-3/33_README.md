@@ -219,31 +219,4 @@ direct类型的codec允许用户配置如下的属性：
 }
 ```
 
-<!-- note structure -->
-<div style="height:80px;width:90%;position:relative;">
-<div style="width:13px;height:100%; background:black; position:absolute;padding:5px 0 5px 0;">
-<img src="../notes/lm.png" height="100%" width="13px"/>
-</div>
-<div style="width:51px;height:100%;position:absolute; left:13px; text-align:center; font-size:0;">
-<img src="../notes/pixel.gif" style="height:100%; width:1px; vertical-align:middle;"/>
-<img src="../notes/note.png" style="vertical-align:middle;"/>
-</div>
-<div style="height:100%;position:absolute;left:65px;right:13px;">
-<p style="font-size:13px;margin-top:10px;">
-我们已经提到，更新操作的时间开销和内存开销都很大。更新的时间段设置越长，索引速度越快。如果在整个索引过程中数据都不必对搜索可见，那么可以考虑关闭更新操作来换取高效的索引过程，设置index.refresh_interval 参数值为-1即可，记得在索引完成后改回原来的值。
-</p>
-</div>
-<div style="width:13px;height:100%;background:black;position:absolute;right:0px;padding:5px 0 5px 0;">
-<img src="../notes/rm.png" height="100%" width="13px"/>
-</div>
-</div>  <!-- end of note structure -->
-
-###事务日志的配置
-
-如果事务日志的默认配置无法满足业务需求，ElasticSearch允许用户在事务日志的处理上自己配置参数。如下的参数可以控制系统的事务日志行为，参数可以设置在elasticsearch.yml文件中，也可以用索引设置更新API来设置：
-* `index.translog.flush_threshold_period`:
-* `index.translog.flush_threshold_ops`:
-* `index.translog.flush_threshold_size`:
-* `index.translog.disable_flush`:
-
 
