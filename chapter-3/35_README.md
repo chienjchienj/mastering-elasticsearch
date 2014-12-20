@@ -2,7 +2,7 @@
 
 用ElasticSearch进行开发时，你可能会被ElasticSearch提供的不同的搜索方式和查询类型所困扰。每种查询类型的运行机制都不尽相同，我们不能浮于表面，比如，比较区间查询和前缀查询之间的不同点。理解query的工作原理并知晓它们之间的区别是至关重要的，特别是基于ElasticSearch进行业务开发时，比如，处理多语言的文本。
 
-###输入的文本并不是都会进行分析
+###不是所有的输入都会被分析
 
 在探讨查询解析之间，我们先使用如下的命令创建一个索引
 ```javascript
@@ -220,7 +220,7 @@ curl localhost:9200/test/_search?pretty -d '{
         "multi_match" : {
             "query" : "jumps",
             "fields" : ["title.org^1000", "title.i18n"],
-            <b>"analyzer": "english"<b/>
+            <b>"analyzer": "english"</b>
         }
     }
 }'
