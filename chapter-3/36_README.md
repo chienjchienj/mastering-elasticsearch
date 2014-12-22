@@ -106,19 +106,19 @@
 
 与前面的合并策略类似，上面提到的属性，都应该加上`index.merge.policy`前缀。因此，如果我们想设置`min_merge_docs`属性值，就应该使用`index.merge.policy.min_merge_docs`属性。
 此外，`log_doc`合并策略支持`index.merge.async`属性和`index.merge.async_interval`，用法与`tiered`合并策略一样。
-###合并计划
-除了允许用户控制合并策略的行为，ElasticSearch还允许用户在需要进行段合并时规定合并策略的执行计划。ElasticSearch中有两种合并计划，默认的是`ConcurrentMergeScheduler`。
-####并行合并计划
-该合并计划会使用多线程来执行段的合并。该合并计划将为每个合并行为创建一个新的线程，直到线程数量的允许创建的上限。如果达到了线程数量的上限，但是又需要开启一个新的线程(段合并的需要)，所有的索引操作将会挂起，直到任意一次段合并行为完成。
+###合并scheduler
+除了允许用户控制合并策略的行为，ElasticSearch还允许用户在需要进行段合并时规定合并策略的执行计划。ElasticSearch中有两种合并scheduler，默认的是`ConcurrentMergeScheduler`。
+####并行合并scheduler
+该合并scheduler会使用多线程来执行段的合并。该合并scheduler将为每个合并行为创建一个新的线程，直到线程数量的允许创建的上限。如果达到了线程数量的上限，但是又需要开启一个新的线程(段合并的需要)，所有的索引操作将会挂起，直到任意一次段合并行为完成。
 为了控制允许创建线程的数量，我们可以修改`index.merge.scheduler.max_thread_count`属性。默认情况下，该值由如下的公式创建：
 `maximum_value(1, minimum_value(3, available_processors / 2)`
-因此，如果我们的系统中有8个可用的处理器，并行合并计划中允许设置的最大线程数为4。
-####串行合并计划
-这是一个只用一个线程进行段合并任务的简单合并计划。使用该计划会使段合并执行时，同个线程中正在进行的文档处理操作停止，说得明白点就是停止索引操作。
-####设置想要的合并计划
-为了设置想要的合并计划，用户需要设置index.merge.scheduler.type属性值为concurrent或serial。例如，如果想设置并行合并计划，用户应该设置如下的属性：
+因此，如果我们的系统中有8个可用的处理器，并行合并scheduler中允许设置的最大线程数为4。
+####串行合并scheduler
+这是一个只用一个线程进行段合并任务的简单合并scheduler。使用该计划会使段合并执行时，同个线程中正在进行的文档处理操作停止，说得明白点就是停止索引操作。
+####设置想要的合并scheduler
+为了设置想要的合并scheduler，用户需要设置index.merge.scheduler.type属性值为concurrent或serial。例如，如果想设置并行合并scheduler，用户应该设置如下的属性：
 index.merge.scheduer.type: concurrent
-如果想设置串行合并计划，用户应该设置如下的属性：
+如果想设置串行合并scheduler，用户应该设置如下的属性：
 index.merge.scheduer.type: serial
 
 <!-- note structure -->
@@ -132,7 +132,7 @@ index.merge.scheduer.type: serial
 </div>
 <div style="height:100%;position:absolute;left:65px;right:13px;">
 <p style="font-size:13px;margin-top:10px;">
-当谈到段合并策略和合并计划，如果这些配置和过程能够可视化，那就非常直观了。如果有读者想了解Apache Lucene底层的合并过程，建议访问Mike McCandless的博客： http://blog.mikemccandless.com/2011/02/visualizinglucenes-segment-merges.html. 此外，ElasticSearch还有一个展示段合并过程的插件SegmentSpy。请访问下面的URL了解更多的相关信息：
+当谈到段合并策略和合并scheduler，如果这些配置和过程能够可视化，那就非常直观了。如果有读者想了解Apache Lucene底层的合并过程，建议访问Mike McCandless的博客： http://blog.mikemccandless.com/2011/02/visualizinglucenes-segment-merges.html. 此外，ElasticSearch还有一个展示段合并过程的插件SegmentSpy。请访问下面的URL了解更多的相关信息：
 https://github.com/polyfractal/elasticsearch-segmentspy
 </p>
 </div>
