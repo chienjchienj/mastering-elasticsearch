@@ -44,7 +44,7 @@
    * [索引段数据统计](chapter-5/53_README.md)
    * [理解ElasticSearch的缓存](chapter-5/54_README.md)
    * [本章小结](chapter-5/55_README.md)
-* [第6章 应对突发事件](chapter-6/README.md)
+* [第6章 应对系统突发状况](chapter-6/README.md)
    * [了解垃圾收集器](chapter-6/61_readme.md)
    * [什么是I/O过载——I/O限流](chapter-6/62_readme.md)
    * [运用数据预热加速查询](chapter-6/66_readme.md)
