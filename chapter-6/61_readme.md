@@ -69,3 +69,38 @@ Perm Gen] [44.3mb]->[44.2mb]/[82mb]}
 
 开启基于阈值记录日志的垃圾收集器工作日志后，只需通过日志信息可以查看系统是否工作正常。当然，如果想了解更多的细节信息，Java提供了一个新的工具，即`jstat`命令。
 ####使用JStat
+运行`jstat`命令来查看垃圾收集器的运行过程非常简单，命令如下：
+```javascript
+jstat -gcutil 123456 2000 1000
+```
+`-gcutil`选项表明命令的任务是监控垃圾收集器的工作，`123456`是ElasticSearch运行的虚拟机的ID，`2000`代表采样的时间间隔(单位为毫秒)，`1000`代表采样样本的数量。因此本例中，上述命令的执行时间将超过33分钟(2000 * 1000 / 1000 / 60)。
+绝大多数情况下，虚拟机的ID与线程的ID相差不大，有时甚至就是线程ID，但是这不是绝对的。想要检测运行程序的Java进程号和虚拟机ID号，只需执行`jps`命令即可，绝大多数的Java虚拟机都支持该命令。样例命令如下：
+```javascript
+jps
+```
+命令的结果如下：
+```javascript
+16232 Jps
+11684 ElasticSearch
+```
+从上面的结果中，可以看到每行以JVM ID开头，随后就是进程的名称。如果想了解更多关于`jps`命令的内容，可以参考Java文档：http://docs.oracle.com/javase/7/docs/technotes/tools/share/jps.html 。
+
+<!-- note structure -->
+<div style="height:70px;width:90%;position:relative;">
+<div style="width:13px;height:100%; background:black; position:absolute;padding:5px 0 5px 0;">
+<img src="../notes/lm.png" height="100%" width="13px"/>
+</div>
+<div style="width:51px;height:100%;position:absolute; left:13px; text-align:center; font-size:0;">
+<img src="../notes/pixel.gif" style="height:100%; width:1px; vertical-align:middle;"/>
+<img src="../notes/note.png" style="vertical-align:middle;"/>
+</div>
+<div id="mid" style="height:100%;position:absolute;left:65px;right:13px;">
+<p style="font-size:13px;margin-top:10px;">
+
+
+</p>
+</div>
+<div id="right" style="width:13px;height:100%;background:black;position:absolute;right:0px;padding:5px 0 5px 0;">
+<img src="../notes/rm.png" height="100%" width="13px"/>
+</div>
+</div>  <!-- end of note structure -->
