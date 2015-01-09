@@ -96,11 +96,13 @@ jps
 </div>
 <div id="mid" style="height:100%;position:absolute;left:65px;right:13px;">
 <p style="font-size:13px;margin-top:10px;">
-
-
+还有一件事情需要记住，做虚拟机优化的目的在于实现多次小规模的回收行为，而非一次长时间的回收行为。这是因为对于应用来说，其性能应该是平稳的，垃圾收集器的工作对ElasticSearch应该是透明的(即感受不到它的存在)。当一次大规模的垃圾收集行为出现时，会导致整个虚拟机工作线程的暂停，这会导致查询变慢，而且会导致索引进程暂停。
 </p>
 </div>
 <div id="right" style="width:13px;height:100%;background:black;position:absolute;right:0px;padding:5px 0 5px 0;">
 <img src="../notes/rm.png" height="100%" width="13px"/>
 </div>
 </div>  <!-- end of note structure -->
+
+####调整ElasticSearch中垃圾收集器的行为
+
