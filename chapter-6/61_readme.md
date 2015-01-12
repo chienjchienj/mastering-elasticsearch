@@ -105,4 +105,59 @@ jps
 </div>  <!-- end of note structure -->
 
 ####调整ElasticSearch中垃圾收集器的行为
+我们既然已经了解了垃圾收集器的工作原理和相关问题的对策，那么就有必要了解如何通过修改ElasticSearch启动参数来改变垃圾收集器运行方式。具体方案取决于ElasticSearch的启动方式。我们将介绍两种最常见方法：使用ElasticSearch内置的启动脚本以及使用service wrapper。
+#####使用标准启动脚本
+在使用标准的启动脚本时，我们需要把相关的JVM参数添加到JAVA_OPTS系统属性中。例如，如果我们希望添加`-XX:+UseParNewGC -XX:+UseConcMarkSweepGC`到类Linux操作系统的ElasticSearch启动参数中，我们应该添加如下的命令：
+```javascript
+export JAVA_OPTS="-XX:+UseParNewGC -XX:+UseConcMarkSweepGC"
+```
+如果想检测参数是否生效，我们可以执行如下的命令：
+```javascript
+echo $JAVA_OPTS
+```
+在本例中，这个命令应该返回如下的结果：
+```javascript
+-XX:+UseParNewGC -XX:+UseConcMarkSweepGC
+```
+#####Service Wrapper
+在ElasticSearch中，可以用Java service wrapper(https://github.com/elasticsearch/elasticsearch-servicewrapper)以服务的方式安装service wrapper。如果使用service wrapper，那么设置JVM 参数的方式与前面的方法就会有所不同。
+我们需要做的就是修改elasticsearch.conf文件，这个文件一般存在于/opt/elasticsearch/bin/service/(如果你的ElasticSearch安装目录是/opt/elasticsearch)。在前面提到的文件中，你将看到如下的参数：
+```javascript
+set.default.ES_HEAP_SIZE=1024
+
+wrapper.java.additional.1=-Delasticsearch-service
+wrapper.java.additional.2=-Des.path.home=%ES_HOME%
+wrapper.java.additional.3=-Xss256k
+wrapper.java.additional.4=-XX:+UseParNewGC
+wrapper.java.additional.5=-XX:+UseConcMarkSweepGC
+wrapper.java.additional.6=-XX:CMSInitiatingOccupancyFraction=75
+wrapper.java.additional.7=-XX:+UseCMSInitiatingOccupancyOnly
+wrapper.java.additional.8=-XX:+HeapDumpOnOutOfMemoryError
+wrapper.java.additional.9=-Djava.awt.headless=true
+```
+第一个属性用于设置ElasticSearch的堆内存容量，其它的都JVM相关的命令。如果要添加新的命令参数，只需要添加新的`wrapper.java.additional`，页面接一个圆点，再接上一个可用的数字即可，例如：
+```javascript
+wrapper.java.additional.10=-server
+```
+
+<!-- note structure -->
+<div style="height:70px;width:90%;position:relative;">
+<div style="width:13px;height:100%; background:black; position:absolute;padding:5px 0 5px 0;">
+<img src="../notes/lm.png" height="100%" width="13px"/>
+</div>
+<div style="width:51px;height:100%;position:absolute; left:13px; text-align:center; font-size:0;">
+<img src="../notes/pixel.gif" style="height:100%; width:1px; vertical-align:middle;"/>
+<img src="../notes/note.png" style="vertical-align:middle;"/>
+</div>
+<div id="mid" style="height:100%;position:absolute;left:65px;right:13px;">
+<p style="font-size:13px;margin-top:10px;">
+需要记住的是，调整垃圾收集器的工作并非一劳永逸。它需要通过实验，最优参数取决于应用的数据、查询等多个关联因素。出现问题时不要害怕做出改变，相反要观察改变后ElasticSearch的运行是否正常。这样才是系统调优的正确态度。
+</p>
+</div>
+<div id="right" style="width:13px;height:100%;background:black;position:absolute;right:0px;padding:5px 0 5px 0;">
+<img src="../notes/rm.png" height="100%" width="13px"/>
+</div>
+</div>  <!-- end of note structure -->
+
+###避免类Unix系统的文件交换
 
