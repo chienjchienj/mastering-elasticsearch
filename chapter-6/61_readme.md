@@ -151,7 +151,7 @@ wrapper.java.additional.10=-server
 </div>
 <div id="mid" style="height:100%;position:absolute;left:65px;right:13px;">
 <p style="font-size:13px;margin-top:10px;">
-需要记住的是，调整垃圾收集器的工作并非一劳永逸。它需要通过实验，最优参数取决于应用的数据、查询等多个关联因素。出现问题时不要害怕做出改变，相反要观察改变后ElasticSearch的运行是否正常。这样才是系统调优的正确态度。
+需要记住的是，垃圾收集器调优工作并非一劳永逸。需要经过多次实验才能确定最优参数，最优参数取决于应用的数据、查询等多种因素。出现问题时不要怕修改参数会让事情变得更糟，相反要观察改变参数后ElasticSearch的运行状态。大胆调整，细心观察；这样才是系统调优的正确态度。
 </p>
 </div>
 <div id="right" style="width:13px;height:100%;background:black;position:absolute;right:0px;padding:5px 0 5px 0;">
@@ -159,5 +159,27 @@ wrapper.java.additional.10=-server
 </div>
 </div>  <!-- end of note structure -->
 
-###避免类Unix系统的文件交换
+###避免类Unix系统的swapping操作
+
+尽管本节的内容与JVM垃圾收集和堆内存占用分析并没紧密的联系，但是了解如何关闭交换区对于系统调优至关重要。swapping是这样一个过程：当物理内存不足或者操作系统基于某些原因时，系统将部分内存数据写入到硬盘交换分区(只有基于Unix的操作系统才有此分区)的过程。如果被交换的内存页面需要再次用到，操作系统又重新将这部分的数据从交换分区回写到内存中，给线程使用。可以看出，这个过程不仅费时，而且消耗资源。
+
+使用ElasticSearch时，我们必须避免内存数据被交换出内存。不难想象，如果ElasticSearch中用到的内存空间被写入到硬盘，接着又读入到内存中，这会造成搜索过程和索引过程的性能急剧下降。因此，ElasticSearch允许用户禁止相关的swap操作。在elasticsearch.yml文件中设置`bootstrap.mlockall`属性值`true`可以实现这一点。
+但是这还只是第一步。还需要确保JVM的xmx和xms参数值相同(为`ES_MIN_MEME`和`ES_MAX_MEM`属性设置相同的值即可)。同时需要注意设置的数值不能超过物理内存的值。
+接下来，如果我们运行ElasticSearch，则可以在日志中看到如下的内容：
+```javascript
+[2013-06-11 19:19:00,858][WARN ][common.jna ]
+Unknown mlockall error 0
+```
+这意味着我们的内存锁定功能没有生效。因此接下来，我们需要修改Linux操作系统中的两个文件(这需要管理员权限)。我们假定运行ElasticSearch的用户名为elasticsearch。
+
+首先，修改`/etc/security/limits.conf`文件，添加如下的内容：
+```javascript
+elasticsearch - nofile 64000
+elasticsearch - memlock unlimited
+```
+接下来，修改`/etc/pam.d/common-session`文件，添加如下的内容：
+```javascript
+session required pam_limits.so
+```
+重新使用es用户账号登录后，启动ElasticSearch就不会再有`mlockall error`信息了。
 
